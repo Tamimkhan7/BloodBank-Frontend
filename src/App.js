@@ -15,7 +15,8 @@ import AdminDashboard from "./components/Admin/AdminDashboard";
 import DonorDashboard from "./components/Donor/DonorDashboard";
 import ContactUs from "./components/Layout/ContactUs";
 import AdminContacts from "./components/Admin/AdminContacts";
-
+import About from "./pages/About";
+import Home from "./pages/Home";
 
 function App() {
   return (
@@ -24,12 +25,21 @@ function App() {
 
       <main className="flex-grow">
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/contact" element={<ContactUs />} />
-          <Route path="/admin/contacts" element={<AdminRoute><AdminContacts /></AdminRoute>} />
-          
+          <Route
+            path="/admin/contacts"
+            element={
+              <AdminRoute>
+                <AdminContacts />
+              </AdminRoute>
+            }
+          />
+          <Route path="/about" element={<About />} />
+          <Route path="/home" element={<Home />} />
+
           <Route
             path="/dashboard"
             element={

@@ -4,17 +4,13 @@ const API_URL = "http://localhost:5282/api";
 
 const api = axios.create({
   baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
 // Attach JWT token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
@@ -23,25 +19,61 @@ export const login = (data) => api.post("/auth/login", data);
 export const register = (data) => api.post("/auth/register", data);
 
 /* ================= DONOR ================= */
+// Get current donor profile
 export const getMyDonorProfile = () => api.get("/donors/me");
 
-export const updateMyDonorProfile = (data) =>
-  api.post("/donors/me", data);
+// Create or update donor profile
+export const updateMyDonorProfile = (data) => api.post("/donors/me", data);
 
-export const searchDonors = (bloodGroup, lat, lon) =>
-  api.get("/donors/search", {
-    params: { bloodGroup, lat, lon },
+// Search donors with blood group and district
+export const searchDonors = (params) => 
+  api.get("/donors/search", { params });
+
+// Get available districts (returns all 64 districts)
+export const getDistricts = () => api.get("/donors/districts");
+
+// ✅ ADD THIS: Photo upload function
+export const uploadDonorPhoto = (formData) =>
+  api.post("/donors/upload-photo", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
 
 /* ================= ADMIN ================= */
 export const getAllUsers = () => api.get("/admin/users");
-
-export const toggleBanUser = (id) =>
-  api.post(`/admin/toggleBan/${id}`);
+export const toggleBanUser = (id) => api.post(`/admin/toggleBan/${id}`);
+export const adminUpdateDonor = (userId, data) =>
+  api.put(`/admin/donor/${userId}`, data);
 
 /* ================= CONTACT ================= */
-export const sendContactMessage = (data) =>
-  api.post("/contacts", data);
+export const sendContactMessage = (data) => api.post("/contacts", data);
+export const getAllContactMessages = () => api.get("/contacts");
 
-export const getAllContactMessages = () =>
-  api.get("/contacts");
+/* ================= HELPER FUNCTIONS ================= */
+// Get all blood groups
+export const getBloodGroupsList = () => [
+  { value: "A+", label: "A+ (A Positive)" },
+  { value: "A-", label: "A- (A Negative)" },
+  { value: "B+", label: "B+ (B Positive)" },
+  { value: "B-", label: "B- (B Negative)" },
+  { value: "O+", label: "O+ (O Positive)" },
+  { value: "O-", label: "O- (O Negative)" },
+  { value: "AB+", label: "AB+ (AB Positive)" },
+  { value: "AB-", label: "AB- (AB Negative)" },
+];
+
+// Get all 64 districts of Bangladesh
+export const getAllBangladeshDistricts = () => [
+  "Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogra", "Brahmanbaria", 
+  "Chandpur", "Chattogram", "Chuadanga", "Comilla", "Cox's Bazar", "Dhaka", 
+  "Dinajpur", "Faridpur", "Feni", "Gaibandha", "Gazipur", "Gopalganj", "Habiganj", 
+  "Jamalpur", "Jashore", "Jhalokati", "Jhenaidah", "Joypurhat", "Khagrachhari", 
+  "Khulna", "Kishoreganj", "Kurigram", "Kushtia", "Lakshmipur", "Lalmonirhat", 
+  "Madaripur", "Magura", "Manikganj", "Meherpur", "Moulvibazar", "Munshiganj", 
+  "Mymensingh", "Naogaon", "Narail", "Narayanganj", "Narsingdi", "Natore", 
+  "Netrokona", "Nilphamari", "Noakhali", "Pabna", "Panchagarh", "Patuakhali", 
+  "Pirojpur", "Rajbari", "Rajshahi", "Rangamati", "Rangpur", "Satkhira", 
+  "Shariatpur", "Sherpur", "Sirajganj", "Sunamganj", "Sylhet", "Tangail", 
+  "Thakurgaon"
+];
+
+export default api;
