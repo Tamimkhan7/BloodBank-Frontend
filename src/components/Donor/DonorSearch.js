@@ -8,8 +8,8 @@ function getDistance(lat1, lon1, lat2, lon2) {
   const a =
     Math.sin(dLat / 2) ** 2 +
     Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return (R * c).toFixed(1);
 }
@@ -24,15 +24,18 @@ export default function DonorSearch() {
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const { latitude, longitude } = pos.coords;
       setCoords({ lat: latitude, lon: longitude });
-      const res = await searchDonors(bloodGroup, latitude, longitude);
-      setDonors(res.data);
+      try {
+        const res = await searchDonors(bloodGroup, latitude, longitude);
+        setDonors(res.data);
+      } catch {
+        alert("Search failed");
+      }
     });
   };
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">Search Donors</h2>
-
       <div className="flex gap-2 mb-4">
         <select
           className="border p-2 rounded"
@@ -40,10 +43,8 @@ export default function DonorSearch() {
           onChange={(e) => setBloodGroup(e.target.value)}
         >
           <option value="">All Blood Groups</option>
-          {["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map((bg) => (
-            <option key={bg} value={bg}>
-              {bg}
-            </option>
+          {["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map(bg => (
+            <option key={bg} value={bg}>{bg}</option>
           ))}
         </select>
         <button
@@ -53,23 +54,13 @@ export default function DonorSearch() {
           Search
         </button>
       </div>
-
       <ul className="space-y-2">
-        {donors.map((d) => (
-          <li
-            key={d.id}
-            className="border p-2 rounded flex justify-between items-center"
-          >
+        {donors.map(d => (
+          <li key={d.id} className="border p-2 rounded flex justify-between items-center">
             <div>
-              {d.user.fullName} — {d.bloodGroup} — Available:{" "}
-              {d.isAvailable ? "Yes" : "No"}
+              {d.user.fullName} — {d.bloodGroup} — Available: {d.isAvailable ? "Yes" : "No"}
             </div>
-            <div>
-              {coords.lat && coords.lon
-                ? getDistance(coords.lat, coords.lon, d.latitude, d.longitude) +
-                  " km"
-                : ""}
-            </div>
+            <div>{coords.lat && coords.lon ? getDistance(coords.lat, coords.lon, d.latitude, d.longitude) + " km" : ""}</div>
           </li>
         ))}
       </ul>

@@ -15,37 +15,54 @@ function getDistance(lat1, lon1, lat2, lon2) {
 }
 
 export default function DonorDashboard() {
-  const [profile, setProfile] = useState({ bloodGroup: "", age: "", address: "", latitude: "", longitude: "", isAvailable: true });
+  const [profile, setProfile] = useState({
+    bloodGroup: "", age: "", address: "", latitude: "", longitude: "", isAvailable: true
+  });
   const [donors, setDonors] = useState([]);
   const [coords, setCoords] = useState({ lat: 0, lon: 0 });
   const [searchBlood, setSearchBlood] = useState("");
 
-  useEffect(() => {
-    const fetchProfile = async () => {
+  // Fetch profile on load
+  const fetchProfile = async () => {
+    try {
       const res = await getMyDonorProfile();
       setProfile(res.data);
-    };
-    fetchProfile();
-  }, []);
-
-  const saveProfile = async (e) => {
-    e.preventDefault();
-    await updateMyDonorProfile(profile);
-    alert("Profile updated");
+    } catch {
+      alert("Failed to load profile");
+    }
   };
 
+  useEffect(() => { fetchProfile(); }, []);
+
+  // Save profile and refresh
+  const saveProfile = async (e) => {
+    e.preventDefault();
+    try {
+      await updateMyDonorProfile(profile);
+      alert("Profile updated");
+      fetchProfile(); // refresh profile
+    } catch {
+      alert("Failed to save profile");
+    }
+  };
+
+  // Search nearby donors
   const searchNearby = async () => {
     if (!navigator.geolocation) return alert("Geolocation not supported");
     navigator.geolocation.getCurrentPosition(async (pos) => {
-      setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
-      const res = await searchDonors(searchBlood, pos.coords.latitude, pos.coords.longitude);
-      setDonors(res.data);
+      const { latitude, longitude } = pos.coords;
+      setCoords({ lat: latitude, lon: longitude });
+      try {
+        const res = await searchDonors(searchBlood, latitude, longitude);
+        setDonors(res.data);
+      } catch {
+        alert("Search failed");
+      }
     });
   };
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
-
       {/* Profile */}
       <div className="bg-white shadow rounded p-6">
         <h2 className="text-2xl font-bold mb-4">My Profile</h2>
@@ -55,15 +72,22 @@ export default function DonorDashboard() {
               key={f}
               placeholder={f}
               value={profile[f]}
-              onChange={e => setProfile({...profile, [f]: e.target.value})}
+              onChange={e => setProfile({ ...profile, [f]: e.target.value })}
               className="w-full border p-2 rounded"
             />
           ))}
           <label className="flex items-center gap-2 mt-2">
             <span>Available:</span>
-            <input type="checkbox" checked={profile.isAvailable} onChange={e => setProfile({...profile, isAvailable: e.target.checked})} className="w-5 h-5"/>
+            <input
+              type="checkbox"
+              checked={profile.isAvailable}
+              onChange={e => setProfile({ ...profile, isAvailable: e.target.checked })}
+              className="w-5 h-5"
+            />
           </label>
-          <button type="submit" className="bg-red-600 text-white px-4 py-2 rounded">Save</button>
+          <button type="submit" className="bg-red-600 text-white px-4 py-2 rounded">
+            Save
+          </button>
         </form>
       </div>
 
@@ -71,13 +95,22 @@ export default function DonorDashboard() {
       <div className="bg-white shadow rounded p-6">
         <h2 className="text-2xl font-bold mb-4">Search Donors Nearby</h2>
         <div className="flex gap-2 mb-4">
-          <select value={searchBlood} onChange={e => setSearchBlood(e.target.value)} className="border p-2 rounded">
+          <select
+            value={searchBlood}
+            onChange={e => setSearchBlood(e.target.value)}
+            className="border p-2 rounded"
+          >
             <option value="">All Blood Groups</option>
             {["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map(bg => (
               <option key={bg} value={bg}>{bg}</option>
             ))}
           </select>
-          <button className="bg-red-600 text-white px-4 py-2 rounded" onClick={searchNearby}>Search</button>
+          <button
+            className="bg-red-600 text-white px-4 py-2 rounded"
+            onClick={searchNearby}
+          >
+            Search
+          </button>
         </div>
         <ul className="space-y-2">
           {donors.map(d => (

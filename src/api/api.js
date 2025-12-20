@@ -2,32 +2,46 @@ import axios from "axios";
 
 const API_URL = "http://localhost:5282/api";
 
-// Get token
-const getToken = () => localStorage.getItem("token");
-
 const api = axios.create({
   baseURL: API_URL,
-  headers: { "Content-Type": "application/json" },
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
+// Attach JWT token
 api.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) config.headers["Authorization"] = `Bearer ${token}`;
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
-// Auth
-export const register = (data) => api.post("/Auth/register", data);
-export const login = (data) => api.post("/Auth/login", data);
+/* ================= AUTH ================= */
+export const login = (data) => api.post("/auth/login", data);
+export const register = (data) => api.post("/auth/register", data);
 
-// Donor
-export const getMyDonorProfile = () => api.get("/Donors/me");
-export const updateMyDonorProfile = (data) => api.post("/Donors/me", data);
+/* ================= DONOR ================= */
+export const getMyDonorProfile = () => api.get("/donors/me");
+
+export const updateMyDonorProfile = (data) =>
+  api.post("/donors/me", data);
+
 export const searchDonors = (bloodGroup, lat, lon) =>
-  api.get(`/Donors/search?bloodGroup=${bloodGroup || ""}&lat=${lat || ""}&lon=${lon || ""}`);
+  api.get("/donors/search", {
+    params: { bloodGroup, lat, lon },
+  });
 
-// Admin
-export const getAllUsers = () => api.get("/Admin/users");
-export const toggleBanUser = (id) => api.post(`/Admin/toggleBan/${id}`);
+/* ================= ADMIN ================= */
+export const getAllUsers = () => api.get("/admin/users");
 
-export default api;
+export const toggleBanUser = (id) =>
+  api.post(`/admin/toggleBan/${id}`);
+
+/* ================= CONTACT ================= */
+export const sendContactMessage = (data) =>
+  api.post("/contacts", data);
+
+export const getAllContactMessages = () =>
+  api.get("/contacts");

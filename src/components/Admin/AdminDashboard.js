@@ -3,18 +3,35 @@ import { getAllUsers, toggleBanUser } from "../../api/api";
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchUsers = async () => {
-    const res = await getAllUsers();
-    setUsers(res.data);
+    try {
+      setLoading(true);
+      const res = await getAllUsers();
+      setUsers(res.data);
+    } catch (err) {
+      console.error("Failed to load users", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchUsers(); }, []);
-
-  const toggleBan = async (user) => {
-    await toggleBanUser(user.id);
+  useEffect(() => {
     fetchUsers();
+  }, []);
+
+  const toggleBan = async (userId) => {
+    try {
+      await toggleBanUser(userId);
+      fetchUsers(); // refresh list
+    } catch (err) {
+      console.error("Failed to toggle ban", err);
+      alert("Failed to update user");
+    }
   };
+
+  if (loading) return <div className="text-center mt-6 text-lg">Loading users...</div>;
 
   const total = users.length;
   const active = users.filter(u => !u.isBanned).length;
@@ -48,7 +65,7 @@ export default function AdminDashboard() {
               <p className="text-sm">{u.isBanned ? "Banned" : "Active"}</p>
             </div>
             <button
-              onClick={() => toggleBan(u)}
+              onClick={() => toggleBan(u.id)}
               className={`px-3 py-1 rounded ${u.isBanned ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}
             >
               {u.isBanned ? "Unban" : "Ban"}
