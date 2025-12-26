@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { login } from "../../api/api";
 import { saveToken } from "../../utils/auth";
+import { Link } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -11,30 +12,30 @@ export default function Login() {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!email) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = "Please enter a valid email address";
     }
-    
+
     if (!password) {
       newErrors.password = "Password is required";
     } else if (password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const submit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setLoading(true);
     try {
       const res = await login({ Email: email, Password: password });
@@ -48,10 +49,10 @@ export default function Login() {
     }
   };
 
-  const handleDemoLogin = () => {
-    setEmail("demo@bloodbank.com");
-    setPassword("demo123");
-  };
+  // const handleDemoLogin = () => {
+  //   setEmail("demo@bloodbank.com");
+  //   setPassword("demo123");
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-red-50 flex items-center justify-center px-4">
@@ -72,9 +73,7 @@ export default function Login() {
           <h1 className="text-4xl font-bold text-red-900 mb-2">
             Welcome to <span className="text-red-600">BloodBank</span>
           </h1>
-          <p className="text-gray-600">
-            Sign in to your donor account
-          </p>
+          <p className="text-gray-600">Sign in to your donor account</p>
         </div>
 
         {/* Login Card */}
@@ -94,11 +93,11 @@ export default function Login() {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  if (errors.email) setErrors({...errors, email: ""});
+                  if (errors.email) setErrors({ ...errors, email: "" });
                 }}
                 placeholder="Enter your email"
                 className={`w-full p-4 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300 ${
-                  errors.email ? 'border-red-500' : 'border-gray-200'
+                  errors.email ? "border-red-500" : "border-gray-200"
                 }`}
                 disabled={loading}
               />
@@ -121,7 +120,7 @@ export default function Login() {
                   className="text-sm text-red-600 hover:text-red-800 transition-colors"
                   disabled={loading}
                 >
-                  {showPassword ? '🙈 Hide' : '👁️ Show'}
+                  {showPassword ? "🙈 Hide" : "👁️ Show"}
                 </button>
               </div>
               <div className="relative">
@@ -130,11 +129,11 @@ export default function Login() {
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    if (errors.password) setErrors({...errors, password: ""});
+                    if (errors.password) setErrors({ ...errors, password: "" });
                   }}
                   placeholder="Enter your password"
                   className={`w-full p-4 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300 ${
-                    errors.password ? 'border-red-500' : 'border-gray-200'
+                    errors.password ? "border-red-500" : "border-gray-200"
                   }`}
                   disabled={loading}
                 />
@@ -159,12 +158,12 @@ export default function Login() {
                   Remember me
                 </label>
               </div>
-              <a
-                href="/forgot-password"
+              <Link
+                to="/forget-password"
                 className="text-red-600 hover:text-red-800 transition-colors text-sm font-medium"
               >
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             {/* Submit Button */}

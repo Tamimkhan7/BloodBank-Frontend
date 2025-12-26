@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { getAllContactMessages } from "../../api/api";
+import { getAllContactMessages, adminReply } from "../../api/api";
+
 import {
   FaEnvelope,
   FaUser,
@@ -18,7 +19,7 @@ import {
   FaArrowLeft,
   FaArrowRight,
   FaFileAlt,
-  FaTimes
+  FaTimes,
 } from "react-icons/fa";
 
 export default function AdminContacts() {
@@ -39,8 +40,8 @@ export default function AdminContacts() {
     try {
       setLoading(true);
       const res = await getAllContactMessages();
-      const sortedMessages = res.data.sort((a, b) => 
-        new Date(b.createdAt) - new Date(a.createdAt)
+      const sortedMessages = res.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
       setMessages(sortedMessages);
       setFilteredMessages(sortedMessages);
@@ -60,30 +61,31 @@ export default function AdminContacts() {
 
   useEffect(() => {
     let filtered = [...messages];
-    
+
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(msg =>
-        msg.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        msg.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        msg.message?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (msg) =>
+          msg.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          msg.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          msg.message?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
+
     // Status filter
-    if (statusFilter === 'read') {
-      filtered = filtered.filter(msg => msg.isRead);
-    } else if (statusFilter === 'unread') {
-      filtered = filtered.filter(msg => !msg.isRead);
+    if (statusFilter === "read") {
+      filtered = filtered.filter((msg) => msg.isRead);
+    } else if (statusFilter === "unread") {
+      filtered = filtered.filter((msg) => !msg.isRead);
     }
-    
+
     // Sort filter
-    if (sortBy === 'newest') {
+    if (sortBy === "newest") {
       filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    } else if (sortBy === 'oldest') {
+    } else if (sortBy === "oldest") {
       filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     }
-    
+
     setFilteredMessages(filtered);
     setTotalPages(Math.ceil(filtered.length / pageSize));
     setPage(1);
@@ -98,7 +100,7 @@ export default function AdminContacts() {
     if (window.confirm("Are you sure you want to delete this message?")) {
       try {
         // await deleteContactMessage(id);
-        setMessages(messages.filter(msg => msg.id !== id));
+        setMessages(messages.filter((msg) => msg.id !== id));
         alert("Message deleted successfully");
       } catch (err) {
         alert("Failed to delete message");
@@ -107,29 +109,62 @@ export default function AdminContacts() {
   };
 
   const handleMarkRead = (id) => {
-    setMessages(messages.map(msg =>
-      msg.id === id ? { ...msg, isRead: true } : msg
-    ));
+    setMessages(
+      messages.map((msg) => (msg.id === id ? { ...msg, isRead: true } : msg))
+    );
   };
+
+  // const handleSendReply = async (messageId, email) => {
+  //   if (!replyText.trim()) {
+  //     alert("Please enter a reply message");
+  //     return;
+  //   }
+
+  //   try {
+  //     setSendingReply(true);
+  //     // In a real app, you would call an API to send email
+  //     console.log(`Sending reply to ${email}: ${replyText}`);
+
+  //     // Simulate API call
+  //     await new Promise(resolve => setTimeout(resolve, 1500));
+
+  //     alert(`Reply sent to ${email} successfully!`);
+  //     setReplyText("");
+  //     setSelectedMessage(null);
+  //   } catch (err) {
+  //     alert("Failed to send reply");
+  //   } finally {
+  //     setSendingReply(false);
+  //   }
+  // };
 
   const handleSendReply = async (messageId, email) => {
     if (!replyText.trim()) {
       alert("Please enter a reply message");
       return;
     }
-    
+
     try {
       setSendingReply(true);
-      // In a real app, you would call an API to send email
-      console.log(`Sending reply to ${email}: ${replyText}`);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
+      // API call
+      await adminReply(messageId, replyText);
+
       alert(`Reply sent to ${email} successfully!`);
+
+      // Update local state – mark as read and store reply
+      setMessages(
+        messages.map((msg) =>
+          msg.id === messageId
+            ? { ...msg, isRead: true, adminReply: replyText }
+            : msg
+        )
+      );
+
       setReplyText("");
       setSelectedMessage(null);
     } catch (err) {
+      console.error(err);
       alert("Failed to send reply");
     } finally {
       setSendingReply(false);
@@ -139,11 +174,11 @@ export default function AdminContacts() {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -152,7 +187,9 @@ export default function AdminContacts() {
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-red-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 font-medium">Loading contact messages...</p>
+          <p className="mt-4 text-gray-600 font-medium">
+            Loading contact messages...
+          </p>
         </div>
       </div>
     );
@@ -175,7 +212,9 @@ export default function AdminContacts() {
             <div className="mt-4 md:mt-0">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg">
                 <FaFileAlt />
-                <span className="font-bold">{messages.length} Total Messages</span>
+                <span className="font-bold">
+                  {messages.length} Total Messages
+                </span>
               </div>
             </div>
           </div>
@@ -240,20 +279,36 @@ export default function AdminContacts() {
             <div
               key={message.id}
               className={`bg-white rounded-2xl shadow-lg overflow-hidden border-2 transition-all duration-300 hover:shadow-xl ${
-                message.isRead ? 'border-gray-200' : 'border-red-300'
+                message.isRead ? "border-gray-200" : "border-red-300"
               }`}
             >
               {/* Message Header */}
-              <div className={`p-5 ${message.isRead ? 'bg-gray-50' : 'bg-gradient-to-r from-red-50 to-pink-50'}`}>
+              <div
+                className={`p-5 ${
+                  message.isRead
+                    ? "bg-gray-50"
+                    : "bg-gradient-to-r from-red-50 to-pink-50"
+                }`}
+              >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      message.isRead ? 'bg-gray-200' : 'bg-gradient-to-r from-red-500 to-red-600'
-                    }`}>
-                      <FaUser className={message.isRead ? 'text-gray-600' : 'text-white'} />
+                    <div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                        message.isRead
+                          ? "bg-gray-200"
+                          : "bg-gradient-to-r from-red-500 to-red-600"
+                      }`}
+                    >
+                      <FaUser
+                        className={
+                          message.isRead ? "text-gray-600" : "text-white"
+                        }
+                      />
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-800 text-lg">{message.name}</h3>
+                      <h3 className="font-bold text-gray-800 text-lg">
+                        {message.name}
+                      </h3>
                       <p className="text-sm text-gray-600">{message.email}</p>
                     </div>
                   </div>
@@ -327,9 +382,11 @@ export default function AdminContacts() {
         {paginatedMessages.length === 0 && (
           <div className="text-center py-16 bg-white rounded-2xl shadow-lg">
             <FaEnvelope className="text-6xl text-gray-300 mx-auto mb-6" />
-            <h3 className="text-2xl font-bold text-gray-700 mb-3">No Messages Found</h3>
+            <h3 className="text-2xl font-bold text-gray-700 mb-3">
+              No Messages Found
+            </h3>
             <p className="text-gray-500 max-w-md mx-auto">
-              {searchTerm || statusFilter !== 'all' 
+              {searchTerm || statusFilter !== "all"
                 ? "Try adjusting your search or filter criteria"
                 : "No contact messages have been received yet"}
             </p>
@@ -341,23 +398,28 @@ export default function AdminContacts() {
           <div className="mt-8 bg-white p-5 rounded-2xl shadow-lg border border-gray-100">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-gray-600">
-                Showing <span className="font-bold">{(page - 1) * pageSize + 1}</span> to{" "}
-                <span className="font-bold">{Math.min(page * pageSize, filteredMessages.length)}</span> of{" "}
-                <span className="font-bold">{filteredMessages.length}</span> messages
+                Showing{" "}
+                <span className="font-bold">{(page - 1) * pageSize + 1}</span>{" "}
+                to{" "}
+                <span className="font-bold">
+                  {Math.min(page * pageSize, filteredMessages.length)}
+                </span>{" "}
+                of <span className="font-bold">{filteredMessages.length}</span>{" "}
+                messages
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
                   disabled={page === 1}
                   className={`px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 transition-all duration-300 ${
                     page === 1
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md hover:shadow-lg'
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md hover:shadow-lg"
                   }`}
                 >
                   <FaArrowLeft /> Previous
                 </button>
-                
+
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     let pageNum;
@@ -370,15 +432,15 @@ export default function AdminContacts() {
                     } else {
                       pageNum = page - 2 + i;
                     }
-                    
+
                     return (
                       <button
                         key={pageNum}
                         onClick={() => setPage(pageNum)}
                         className={`w-10 h-10 rounded-lg font-bold transition-all duration-300 ${
                           page === pageNum
-                            ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? "bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }`}
                       >
                         {pageNum}
@@ -386,14 +448,16 @@ export default function AdminContacts() {
                     );
                   })}
                 </div>
-                
+
                 <button
-                  onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+                  onClick={() =>
+                    setPage((prev) => Math.min(prev + 1, totalPages))
+                  }
                   disabled={page === totalPages}
                   className={`px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 transition-all duration-300 ${
                     page === totalPages
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md hover:shadow-lg'
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md hover:shadow-lg"
                   }`}
                 >
                   Next <FaArrowRight />
@@ -416,7 +480,9 @@ export default function AdminContacts() {
                     <FaReply className="text-2xl" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold">Reply to {selectedMessage.name}</h2>
+                    <h2 className="text-2xl font-bold">
+                      Reply to {selectedMessage.name}
+                    </h2>
                     <p className="opacity-90">{selectedMessage.email}</p>
                   </div>
                 </div>
@@ -471,12 +537,14 @@ export default function AdminContacts() {
                   Cancel
                 </button>
                 <button
-                  onClick={() => handleSendReply(selectedMessage.id, selectedMessage.email)}
+                  onClick={() =>
+                    handleSendReply(selectedMessage.id, selectedMessage.email)
+                  }
                   disabled={sendingReply || !replyText.trim()}
                   className={`px-6 py-3 rounded-xl font-bold flex items-center gap-3 transition-all duration-300 ${
                     sendingReply || !replyText.trim()
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-md hover:shadow-lg'
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-md hover:shadow-lg"
                   }`}
                 >
                   {sendingReply ? (

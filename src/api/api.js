@@ -14,11 +14,13 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-/* ================= AUTH ================= */
+/* AUTH */
 export const login = (data) => api.post("/auth/login", data);
 export const register = (data) => api.post("/auth/register", data);
+export const forgetPassword = (email) =>  api.post("/auth/forget-password", { email });
+export const resetPassword = (token, newPassword) => api.post("/auth/reset-password", { token, newPassword });
 
-/* ================= DONOR ================= */
+/* DONOR */
 // Get current donor profile
 export const getMyDonorProfile = () => api.get("/donors/me");
 
@@ -38,18 +40,21 @@ export const uploadDonorPhoto = (formData) =>
     headers: { "Content-Type": "multipart/form-data" },
   });
 
-/* ================= ADMIN ================= */
+/* ADMIN */
 export const getAllUsers = () => api.get("/admin/users");
 export const toggleBanUser = (id) => api.post(`/admin/toggleBan/${id}`);
 export const adminUpdateDonor = (userId, data) =>
   api.put(`/admin/donor/${userId}`, data);
 
-/* ================= CONTACT ================= */
+/* CONTACT */
 export const sendContactMessage = (data) => api.post("/contacts", data);
 export const getAllContactMessages = () => api.get("/contacts");
+// export const adminReply = (id, reply) => api.put(`/contacts/${id}/reply`, reply);
+export const adminReply = (id, reply) => api.put(`/contacts/${id}/reply`, { adminReply: reply });
 
 
-/* ================= BLOOD REQUEST ================= */
+
+/*  BLOOD REQUEST*/
 
 // User
 export const createBloodRequest = (data) =>
@@ -67,7 +72,7 @@ export const adminReplyBloodRequest = (id, data) =>
 
 
 
-/* ================= HELPER FUNCTIONS ================= */
+/* HELPER FUNCTIONS */
 // Get all blood groups
 export const getBloodGroupsList = () => [
   { value: "A+", label: "A+ (A Positive)" },

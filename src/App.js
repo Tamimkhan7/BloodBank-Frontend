@@ -5,6 +5,8 @@ import Footer from "./components/Layout/Footer";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
+import ForgetPassword from "./components/Auth/ForgetPassword";
+import ResetPassword from "./components/Auth/ResetPassword";
 import AdminRoute from "./components/Auth/AdminRoute";
 
 import Dashboard from "./components/Layout/Dashboard";
@@ -38,6 +40,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/contact" element={<ContactUs />} />
+           <Route path="/forget-password" element={<ForgetPassword />} />
+           <Route path="/reset-password" element={<ResetPassword />} />
+          
+
 
           {/* User */}
           <Route
