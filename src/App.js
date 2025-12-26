@@ -15,8 +15,14 @@ import AdminDashboard from "./components/Admin/AdminDashboard";
 import DonorDashboard from "./components/Donor/DonorDashboard";
 import ContactUs from "./components/Layout/ContactUs";
 import AdminContacts from "./components/Admin/AdminContacts";
+
 import About from "./pages/About";
 import Home from "./pages/Home";
+
+//  Blood request pages
+import BloodRequest from "./pages/donor/BloodRequest";
+import BloodRequestHistory from "./pages/donor/BloodRequestHistory";
+import AdminBloodRequests from "./components/Admin/AdminBloodRequests";
 
 function App() {
   return (
@@ -25,26 +31,20 @@ function App() {
 
       <main className="flex-grow">
         <Routes>
+          {/* Public */}
           <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/contact" element={<ContactUs />} />
-          <Route
-            path="/admin/contacts"
-            element={
-              <AdminRoute>
-                <AdminContacts />
-              </AdminRoute>
-            }
-          />
-          <Route path="/about" element={<About />} />
-          <Route path="/home" element={<Home />} />
 
+          {/* User */}
           <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <Home />
               </ProtectedRoute>
             }
           />
@@ -65,18 +65,38 @@ function App() {
             }
           />
           <Route
-            path="/donor/dashboard"
+            path="/"
             element={
               <ProtectedRoute>
                 <DonorDashboard />
               </ProtectedRoute>
             }
           />
+
+          {/*  Blood Request (User) */}
+          <Route
+            path="/blood-request"
+            element={
+              <ProtectedRoute>
+                <BloodRequest />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-blood-requests"
+            element={
+              <ProtectedRoute>
+                <BloodRequestHistory />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin */}
           <Route
             path="/admin/dashboard"
             element={
               <AdminRoute>
-                <AdminDashboard />
+                <Dashboard />
               </AdminRoute>
             }
           />
@@ -88,8 +108,26 @@ function App() {
               </AdminRoute>
             }
           />
+          <Route
+            path="/admin/contacts"
+            element={
+              <AdminRoute>
+                <AdminContacts />
+              </AdminRoute>
+            }
+          />
 
-          {/* Catch all unmatched routes */}
+          {/*  Blood Request (Admin) */}
+          <Route
+            path="/admin/blood-requests"
+            element={
+              <AdminRoute>
+                <AdminBloodRequests />
+              </AdminRoute>
+            }
+          />
+
+          {/* Fallback */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>

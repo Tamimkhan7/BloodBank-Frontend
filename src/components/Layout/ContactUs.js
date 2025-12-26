@@ -78,7 +78,7 @@ export default function ContactUs() {
                   <span className="text-2xl">🏢</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg mb-1">Our Office</h3>
+                  <h3 className="font-bold text-lg mb-1">Location</h3>
                   <p className="text-red-100">Mirpur, Dhaka-1216, Bangladesh</p>
                 </div>
               </div>

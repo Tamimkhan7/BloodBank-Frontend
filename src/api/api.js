@@ -32,7 +32,7 @@ export const searchDonors = (params) =>
 // Get available districts (returns all 64 districts)
 export const getDistricts = () => api.get("/donors/districts");
 
-// ✅ ADD THIS: Photo upload function
+// ADD THIS: Photo upload function
 export const uploadDonorPhoto = (formData) =>
   api.post("/donors/upload-photo", formData, {
     headers: { "Content-Type": "multipart/form-data" },
@@ -47,6 +47,25 @@ export const adminUpdateDonor = (userId, data) =>
 /* ================= CONTACT ================= */
 export const sendContactMessage = (data) => api.post("/contacts", data);
 export const getAllContactMessages = () => api.get("/contacts");
+
+
+/* ================= BLOOD REQUEST ================= */
+
+// User
+export const createBloodRequest = (data) =>
+  api.post("/blood-requests", data);
+
+export const getMyBloodRequests = () =>
+  api.get("/blood-requests/me");
+
+// Admin
+export const getAllBloodRequests = () =>
+  api.get("/blood-requests/admin");
+
+export const adminReplyBloodRequest = (id, data) =>
+  api.put(`/blood-requests/admin/${id}`, data);
+
+
 
 /* ================= HELPER FUNCTIONS ================= */
 // Get all blood groups

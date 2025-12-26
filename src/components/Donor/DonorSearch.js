@@ -1,13 +1,17 @@
-import { useState } from "react"; // Removed unused useEffect
+import { useState } from "react";
 import { searchDonors } from "../../api/api";
 
 export default function DonorSearch() {
   const [filters, setFilters] = useState({
     bloodGroup: "",
-    district: ""
+    district: "",
+    donorType: "all" // all, active, inactive
   });
+  
   const [donors, setDonors] = useState([]);
+  const [allDonors, setAllDonors] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searching, setSearching] = useState(false);
   
   // Pagination
   const [page, setPage] = useState(1);
@@ -33,13 +37,43 @@ export default function DonorSearch() {
     "Thakurgaon"
   ];
 
+  // Donor types
+  const donorTypes = [
+    { value: "all", label: "All Donors" },
+    { value: "active", label: "Active Donors Only" },
+    { value: "inactive", label: "Inactive Donors" }
+  ];
+
+  // Fetch all donors initially
+  const loadAllDonors = async () => {
+    setLoading(true);
+    try {
+      const params = {
+        page: 1,
+        pageSize: 50 // Load first 50 donors to show
+      };
+
+      const response = await searchDonors(params);
+      setAllDonors(response.data.donors || []);
+      setTotalDonors(response.data.totalCount || 0);
+      setDonors(response.data.donors || []); // Show all initially
+      setTotalPages(Math.ceil((response.data.donors?.length || 0) / pageSize));
+    } catch (error) {
+      console.error("Failed to load donors:", error);
+      alert("Failed to load donors. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Search with filters
   const handleSearch = async (pageNum = 1) => {
     if (!filters.bloodGroup) {
-      alert("Please select a blood group");
+      alert("Please select a blood group to search");
       return;
     }
 
-    setLoading(true);
+    setSearching(true);
     try {
       const params = {
         bloodGroup: filters.bloodGroup,
@@ -57,8 +91,59 @@ export default function DonorSearch() {
       console.error("Search failed:", error);
       alert("Failed to search donors. Please try again.");
     } finally {
-      setLoading(false);
+      setSearching(false);
     }
+  };
+
+  // Filter from all donors locally
+  const filterDonorsLocally = () => {
+    if (!filters.bloodGroup) {
+      alert("Please select a blood group");
+      return;
+    }
+
+    setSearching(true);
+    
+    // Simulate API delay for better UX
+    setTimeout(() => {
+      let filtered = [...allDonors];
+      
+      // Filter by blood group
+      if (filters.bloodGroup) {
+        filtered = filtered.filter(d => {
+          const donor = d.donor || d;
+          return donor.bloodGroup === filters.bloodGroup;
+        });
+      }
+      
+      // Filter by district
+      if (filters.district) {
+        filtered = filtered.filter(d => {
+          const donor = d.donor || d;
+          return donor.presentDistrict === filters.district || 
+                 donor.permanentDistrict === filters.district;
+        });
+      }
+      
+      // Filter by donor type
+      if (filters.donorType === "active") {
+        filtered = filtered.filter(d => {
+          const donor = d.donor || d;
+          return donor.isAvailable === true;
+        });
+      } else if (filters.donorType === "inactive") {
+        filtered = filtered.filter(d => {
+          const donor = d.donor || d;
+          return donor.isAvailable === false;
+        });
+      }
+      
+      setDonors(filtered);
+      setTotalDonors(filtered.length);
+      setTotalPages(Math.ceil(filtered.length / pageSize));
+      setPage(1);
+      setSearching(false);
+    }, 300);
   };
 
   const handleFilterChange = (e) => {
@@ -71,7 +156,10 @@ export default function DonorSearch() {
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
-      handleSearch(newPage);
+      const startIndex = (newPage - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      setDonors(allDonors.slice(startIndex, endIndex));
+      setPage(newPage);
     }
   };
 
@@ -111,6 +199,14 @@ export default function DonorSearch() {
     });
   };
 
+  // Load all donors on component mount
+  useState(() => {
+    loadAllDonors();
+  }, []);
+
+  // Calculate paginated donors
+  const paginatedDonors = donors.slice((page - 1) * pageSize, page * pageSize);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-red-50 pt-24 pb-16 px-4">
       {/* Background blood drop decoration */}
@@ -124,26 +220,25 @@ export default function DonorSearch() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex justify-center mb-4">
-            <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-lg">
+            {/* <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-lg">
               <span className="text-white text-3xl">❤️</span>
-            </div>
+            </div> */}
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-red-900 mb-4">
             Find Blood Donors
           </h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Search for voluntary blood donors by blood group and district. 
-            Every search could save a life.
+            Browse all donors or filter by specific criteria. Every search could save a life.
           </p>
         </div>
 
         {/* Search Filters */}
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-8 border border-red-100">
           <h2 className="text-2xl font-bold text-red-900 mb-6">
-            🔍 Search Filters
+            🔍 Search & Filter Donors
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Blood Group */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -182,23 +277,59 @@ export default function DonorSearch() {
                 ))}
               </select>
             </div>
+
+            {/* Donor Type */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                👥 Donor Status
+              </label>
+              <select
+                name="donorType"
+                value={filters.donorType}
+                onChange={handleFilterChange}
+                className="w-full p-3 border-2 border-red-100 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-300"
+              >
+                {donorTypes.map(type => (
+                  <option key={type.value} value={type.value} className="py-2">
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          {/* Search Button */}
-          <div className="mt-8 text-center">
+          {/* Search Buttons */}
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => handleSearch(1)}
-              disabled={loading || !filters.bloodGroup}
-              className="bg-gradient-to-r from-red-600 to-red-500 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-red-700 hover:to-red-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mx-auto"
+              onClick={filterDonorsLocally}
+              disabled={searching || !filters.bloodGroup}
+              className="bg-gradient-to-r from-red-600 to-red-500 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-red-700 hover:to-red-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+            >
+              {searching ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Filtering...
+                </>
+              ) : (
+                <>
+                  🔍 Filter Donors
+                </>
+              )}
+            </button>
+            
+            <button
+              onClick={loadAllDonors}
+              disabled={loading}
+              className="bg-gradient-to-r from-gray-600 to-gray-500 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-gray-700 hover:to-gray-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
             >
               {loading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Searching...
+                  Loading...
                 </>
               ) : (
                 <>
-                  🔍 Search Donors
+                  🔄 Show All Donors
                 </>
               )}
             </button>
@@ -207,7 +338,7 @@ export default function DonorSearch() {
 
         {/* Results */}
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
             <h2 className="text-2xl font-bold text-red-900">
               Available Donors
               {totalDonors > 0 && (
@@ -217,9 +348,23 @@ export default function DonorSearch() {
               )}
             </h2>
             
-            {/* Sort Info */}
-            <div className="flex items-center gap-2 text-sm text-gray-600 bg-red-50 px-3 py-2 rounded-lg">
-              📅 Sorted by recent blood donation
+            {/* Filter Summary */}
+            <div className="flex flex-wrap gap-2">
+              {filters.bloodGroup && (
+                <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-medium">
+                  🩸 {filters.bloodGroup}
+                </span>
+              )}
+              {filters.district && (
+                <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-medium">
+                  📍 {filters.district}
+                </span>
+              )}
+              {filters.donorType !== "all" && (
+                <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm font-medium">
+                  {filters.donorType === "active" ? "🟢 Active" : "🔴 Inactive"}
+                </span>
+              )}
             </div>
           </div>
 
@@ -237,47 +382,55 @@ export default function DonorSearch() {
                 </div>
               ))}
             </div>
-          ) : donors.length === 0 ? (
+          ) : paginatedDonors.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl shadow-lg">
               <div className="w-24 h-24 mx-auto mb-6 bg-red-50 rounded-full flex items-center justify-center">
                 <span className="text-red-300 text-4xl">🩸</span>
               </div>
               <h3 className="text-2xl font-bold text-gray-700 mb-3">
-                No donors found
+                {searching ? "Filtering donors..." : "No donors found"}
               </h3>
               <p className="text-gray-600 max-w-md mx-auto mb-8">
                 {filters.bloodGroup 
-                  ? `No ${filters.bloodGroup} donors found in ${filters.district || "Bangladesh"}.`
-                  : "Please select a blood group to start searching."}
+                  ? `No ${filters.bloodGroup} donors found with the selected filters.`
+                  : "Select a blood group to start filtering."}
               </p>
+              <button
+                onClick={loadAllDonors}
+                className="bg-gradient-to-r from-red-600 to-red-500 text-white px-6 py-3 rounded-xl font-bold hover:from-red-700 hover:to-red-600 transition-all duration-300"
+              >
+                🔄 Show All Donors
+              </button>
             </div>
           ) : (
             <>
               {/* Donor Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {donors.map((item, index) => {
+                {paginatedDonors.map((item, index) => {
                   const donor = item.donor || item;
                   
                   return (
                     <div 
-                      key={donor.id} 
+                      key={donor.id || index} 
                       className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-red-100 overflow-hidden group"
                     >
                       {/* Blood Group Badge */}
                       <div className="absolute top-4 right-4 z-10">
                         <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg font-bold text-lg shadow-lg">
-                          {donor.bloodGroup}
+                          {donor.bloodGroup || "Unknown"}
                         </div>
                       </div>
 
-                      {/* Donation Date Badge */}
-                      {donor.lastDonationDate && (
-                        <div className="absolute top-4 left-4 z-10">
-                          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-lg font-semibold text-sm shadow-lg">
-                            🩸 {formatDate(donor.lastDonationDate)}
-                          </div>
+                      {/* Availability Badge */}
+                      <div className="absolute top-4 left-4 z-10">
+                        <div className={`px-3 py-1 rounded-lg font-semibold text-sm shadow-lg ${
+                          donor.isAvailable 
+                            ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
+                            : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
+                        }`}>
+                          {donor.isAvailable ? '🟢 Available' : '🔴 Not Available'}
                         </div>
-                      )}
+                      </div>
 
                       {/* Donor Info */}
                       <div className="p-6 pt-12">
@@ -306,7 +459,7 @@ export default function DonorSearch() {
                               👤 {donor.age ? `${donor.age} years` : "Age not specified"}
                             </p>
                             <p className="text-sm text-gray-500 mt-1">
-                              📍 {donor.presentDistrict || "District not specified"}
+                              📍 {donor.presentDistrict || donor.permanentDistrict || "Location not specified"}
                             </p>
                           </div>
                         </div>
@@ -353,7 +506,7 @@ export default function DonorSearch() {
                           <div>
                             <p className="text-sm text-gray-500">📍 District</p>
                             <p className="font-semibold text-gray-800">
-                              {donor.presentDistrict || "Not specified"}
+                              {donor.presentDistrict || donor.permanentDistrict || "Not specified"}
                             </p>
                           </div>
                           <div>
@@ -365,9 +518,9 @@ export default function DonorSearch() {
                         </div>
 
                         {/* Call to Action */}
-                        <button className="w-full mt-6 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-300 group-hover:shadow-md flex items-center justify-center gap-2">
+                        {/* <button className="w-full mt-6 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-300 group-hover:shadow-md flex items-center justify-center gap-2">
                           📞 Contact Donor
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   );
@@ -379,7 +532,7 @@ export default function DonorSearch() {
                 <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="text-gray-600">
                     Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalDonors)} of {totalDonors} donors
-                    <span className="ml-2 text-red-600">• Sorted by recent donors first</span>
+                    {filters.donorType === "active" && " • Showing active donors only"}
                   </div>
                   
                   <div className="flex items-center gap-2">
@@ -464,7 +617,7 @@ export default function DonorSearch() {
 
         {/* District Info */}
         <div className="mt-8 text-center text-gray-600 text-sm">
-          <p>📌 Showing donors from all 64 districts of Bangladesh</p>
+          <p>📌 Showing donors from all 64 districts of Bangladesh • Active donors are highlighted in green</p>
         </div>
       </div>
     </div>

@@ -41,10 +41,7 @@ export default function Dashboard() {
         {/* Dashboard Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* My Profile Card */}
-          <Link
-            to="/profile"
-            className="group relative overflow-hidden"
-          >
+          <Link to="/profile" className="group relative overflow-hidden">
             <div className="absolute -inset-4 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
             <div className="relative bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 border border-red-100 h-full">
               <div className="flex items-center gap-4 mb-6">
@@ -59,7 +56,8 @@ export default function Dashboard() {
                 </div>
               </div>
               <p className="text-gray-600 mb-6">
-                Update and manage your donor information, contact details, and availability status.
+                Update and manage your donor information, contact details, and
+                availability status.
               </p>
               <div className="flex items-center justify-between mt-auto">
                 <span className="text-red-600 font-semibold group-hover:text-red-700 transition-colors">
@@ -91,11 +89,43 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <p className="text-gray-600 mb-6">
-                    Manage all user accounts, view registrations, and handle user permissions and status.
+                    Manage all user accounts, view registrations, and handle
+                    user permissions and status.
                   </p>
                   <div className="flex items-center justify-between mt-auto">
                     <span className="text-red-600 font-semibold group-hover:text-red-700 transition-colors">
                       Manage Users →
+                    </span>
+                    <span className="text-red-500 text-2xl">→</span>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Admin Blood Requests Card */}
+              <Link
+                to="/admin/blood-requests"
+                className="group relative overflow-hidden"
+              >
+                <div className="absolute -inset-4 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <div className="relative bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 border border-red-100 h-full">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <span className="text-white text-2xl">🩸</span>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-red-900 group-hover:text-red-700 transition-colors">
+                        Blood Requests
+                      </h2>
+                      <div className="w-16 h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-full mt-2"></div>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 mb-6">
+                    View all blood requests, check status, and reply to user
+                    requests.
+                  </p>
+                  <div className="flex items-center justify-between mt-auto">
+                    <span className="text-red-600 font-semibold group-hover:text-red-700 transition-colors">
+                      View Requests →
                     </span>
                     <span className="text-red-500 text-2xl">→</span>
                   </div>
@@ -121,7 +151,8 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <p className="text-gray-600 mb-6">
-                    View and manage all contact messages from users, handle inquiries, and respond to requests.
+                    View and manage all contact messages from users, handle
+                    inquiries, and respond to requests.
                   </p>
                   <div className="flex items-center justify-between mt-auto">
                     <span className="text-red-600 font-semibold group-hover:text-red-700 transition-colors">
@@ -135,8 +166,8 @@ export default function Dashboard() {
           )}
 
           {/* Search Donors Card (Commented - can uncomment if needed) */}
-          {/* 
-          <Link
+
+          {/* <Link
             to="/search"
             className="group relative overflow-hidden"
           >
@@ -163,13 +194,12 @@ export default function Dashboard() {
                 <span className="text-red-500 text-2xl">→</span>
               </div>
             </div>
-          </Link>
-          */}
+          </Link> */}
 
           {/* Add More Cards for Future Features */}
           {role !== "Admin" && (
             <>
-              {/* Placeholder Card 1 */}
+              {/* { Placeholder Card 1 } */}
               <div className="bg-white rounded-2xl shadow-xl p-8 border border-red-100 opacity-80">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-14 h-14 bg-gradient-to-br from-gray-300 to-gray-400 rounded-xl flex items-center justify-center">
@@ -183,7 +213,8 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <p className="text-gray-500 mb-6">
-                  New features are being developed to enhance your donor experience.
+                  New features are being developed to enhance your donor
+                  experience.
                 </p>
                 <div className="flex items-center justify-between mt-auto">
                   <span className="text-gray-400 font-semibold">
@@ -206,7 +237,8 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <p className="text-gray-500 mb-6">
-                  More tools and features will be added to help you save more lives.
+                  More tools and features will be added to help you save more
+                  lives.
                 </p>
                 <div className="flex items-center justify-between mt-auto">
                   <span className="text-gray-400 font-semibold">
@@ -219,13 +251,15 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Stats (Optional - can add later) */}
-        {/* <div className="mt-12 bg-gradient-to-r from-red-600 to-red-500 rounded-2xl p-6 md:p-8 text-white shadow-2xl">
+        <div className="mt-12 bg-gradient-to-r from-red-600 to-red-500 rounded-2xl p-6 md:p-8 text-white shadow-2xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="text-3xl font-bold mb-2">
                 {role === "Admin" ? "👑" : "🩸"}
               </div>
-              <div className="text-lg font-medium">{role || "Donor"} Account</div>
+              <div className="text-lg font-medium">
+                {role || "Donor"} Account
+              </div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold mb-2">24/7</div>
@@ -236,29 +270,7 @@ export default function Dashboard() {
               <div className="text-lg font-medium">Always Connected</div>
             </div>
           </div>
-        </div> */}
-
-        {/* Help Section */}
-        {/* <div className="mt-12 text-center">
-          <h3 className="text-2xl font-bold text-red-900 mb-4">Need Help?</h3>
-          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            If you need assistance with your dashboard or have any questions, please visit our help center or contact support.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link
-              to="/contact"
-              className="bg-gradient-to-r from-red-600 to-red-500 text-white px-6 py-3 rounded-xl font-semibold hover:from-red-700 hover:to-red-600 transition-all duration-300 shadow-lg"
-            >
-              📞 Contact Support
-            </Link>
-            <Link
-              to="/about"
-              className="bg-white text-red-600 border-2 border-red-600 px-6 py-3 rounded-xl font-semibold hover:bg-red-50 transition-all duration-300"
-            >
-              ℹ️ About BloodBank
-            </Link>
-          </div>
-        </div> */}
+        </div>
       </div>
     </div>
   );

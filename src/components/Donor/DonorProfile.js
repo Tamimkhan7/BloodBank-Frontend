@@ -4,14 +4,27 @@ import {
   updateMyDonorProfile,
   uploadDonorPhoto,
 } from "../../api/api";
-// REMOVED: import { Input } from "postcss"; // This was causing the error
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
 const GENDERS = ["Male", "Female", "Other"];
 
+const DISTRICTS = [
+  "Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogura", "Brahmanbaria", 
+  "Chandpur", "Chattogram", "Chuadanga", "Cox's Bazar", "Cumilla", "Dhaka", "Dinajpur", 
+  "Faridpur", "Feni", "Gaibandha", "Gazipur", "Gopalganj", "Habiganj", "Jamalpur", 
+  "Jashore", "Jhalokati", "Jhenaidah", "Joypurhat", "Khagrachhari", "Khulna", 
+  "Kishoreganj", "Kurigram", "Kushtia", "Lakshmipur", "Lalmonirhat", "Madaripur", 
+  "Magura", "Manikganj", "Meherpur", "Moulvibazar", "Munshiganj", "Mymensingh", 
+  "Naogaon", "Narail", "Narayanganj", "Narsingdi", "Natore", "Netrokona", "Nilphamari", 
+  "Noakhali", "Pabna", "Panchagarh", "Patuakhali", "Pirojpur", "Rajbari", "Rajshahi", 
+  "Rangamati", "Rangpur", "Satkhira", "Shariatpur", "Sherpur", "Sirajganj", 
+  "Sunamganj", "Sylhet", "Tangail", "Thakurgaon"
+];
+
 export default function DonorProfile() {
   const [step, setStep] = useState(1);
   const [photoFile, setPhotoFile] = useState(null);
+  const [isLocating, setIsLocating] = useState(false);
 
   const [profile, setProfile] = useState({
     name: "",
@@ -40,19 +53,6 @@ export default function DonorProfile() {
     const fetchProfile = async () => {
       const res = await getMyDonorProfile();
       setProfile(res.data);
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            setProfile((p) => ({
-              ...p,
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
-            }));
-          },
-          () => {}
-        );
-      }
     };
     fetchProfile();
   }, []);
@@ -112,6 +112,35 @@ export default function DonorProfile() {
     fd.append("photo", photoFile);
     const res = await uploadDonorPhoto(fd);
     setProfile((p) => ({ ...p, photoUrl: res.data.photoUrl }));
+  };
+
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setProfile({
+          ...profile,
+          latitude: position.coords.latitude.toFixed(6),
+          longitude: position.coords.longitude.toFixed(6),
+        });
+        setIsLocating(false);
+        alert("Location captured successfully!");
+      },
+      (error) => {
+        setIsLocating(false);
+        alert(`Error getting location: ${error.message}`);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
   };
 
   /* ================= STEPS ================= */
@@ -218,13 +247,18 @@ export default function DonorProfile() {
         <label className="font-medium block mb-2">
           Present District <span className="text-red-600">*</span>
         </label>
-        <input
+        <select
           value={profile.presentDistrict}
           onChange={(e) =>
             setProfile({ ...profile, presentDistrict: e.target.value })
           }
           className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-red-500 focus:border-transparent"
-        />
+        >
+          <option value="">Select District</option>
+          {DISTRICTS.map((district) => (
+            <option key={district} value={district}>{district}</option>
+          ))}
+        </select>
       </div>
     </div>,
 
@@ -246,13 +280,18 @@ export default function DonorProfile() {
         <label className="font-medium block mb-2">
           Permanent District <span className="text-red-600">*</span>
         </label>
-        <input
+        <select
           value={profile.permanentDistrict}
           onChange={(e) =>
             setProfile({ ...profile, permanentDistrict: e.target.value })
           }
           className="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-red-500 focus:border-transparent"
-        />
+        >
+          <option value="">Select District</option>
+          {DISTRICTS.map((district) => (
+            <option key={district} value={district}>{district}</option>
+          ))}
+        </select>
       </div>
 
       <div className="flex gap-2">
@@ -263,8 +302,10 @@ export default function DonorProfile() {
           <input
             placeholder="Latitude"
             value={profile.latitude}
-            readOnly
-            className="w-full border border-gray-300 p-2 rounded bg-gray-100"
+            onChange={(e) =>
+              setProfile({ ...profile, latitude: e.target.value })
+            }
+            className="w-full border border-gray-300 p-2 rounded"
           />
         </div>
         <div className="w-1/2">
@@ -274,10 +315,26 @@ export default function DonorProfile() {
           <input
             placeholder="Longitude"
             value={profile.longitude}
-            readOnly
-            className="w-full border border-gray-300 p-2 rounded bg-gray-100"
+            onChange={(e) =>
+              setProfile({ ...profile, longitude: e.target.value })
+            }
+            className="w-full border border-gray-300 p-2 rounded"
           />
         </div>
+      </div>
+
+      <div>
+        <button
+          type="button"
+          onClick={getCurrentLocation}
+          disabled={isLocating}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLocating ? "Getting Location..." : "Get Current Location"}
+        </button>
+        <p className="text-sm text-gray-600 mt-2">
+          Click the button to automatically get your current latitude and longitude
+        </p>
       </div>
     </div>,
 
