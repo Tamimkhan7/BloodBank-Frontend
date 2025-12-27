@@ -25,6 +25,7 @@ import Home from "./pages/Home";
 import BloodRequest from "./pages/donor/BloodRequest";
 import BloodRequestHistory from "./pages/donor/BloodRequestHistory";
 import AdminBloodRequests from "./components/Admin/AdminBloodRequests";
+import SafetyGuidelinesPage from "./pages/SafetyGuidelinesPage";
 
 function App() {
   return (
@@ -41,7 +42,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/contact" element={<ContactUs />} />
            <Route path="/forget-password" element={<ForgetPassword />} />
-           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/safety-guidelines" element={<SafetyGuidelinesPage />} />
+
           
 
 

@@ -1,18 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { searchDonors } from "../../api/api";
 
 export default function DonorSearch() {
   const [filters, setFilters] = useState({
     bloodGroup: "",
     district: "",
-    donorType: "all" // all, active, inactive
+    donorType: "all", // all, active, inactive
   });
-  
+
   const [donors, setDonors] = useState([]);
   const [allDonors, setAllDonors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searching, setSearching] = useState(false);
-  
+
   // Pagination
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -21,27 +21,79 @@ export default function DonorSearch() {
 
   // Available blood groups
   const bloodGroups = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
-  
+
   // All 64 Districts of Bangladesh
   const allDistricts = [
-    "Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogra", "Brahmanbaria", 
-    "Chandpur", "Chattogram", "Chuadanga", "Comilla", "Cox's Bazar", "Dhaka", 
-    "Dinajpur", "Faridpur", "Feni", "Gaibandha", "Gazipur", "Gopalganj", "Habiganj", 
-    "Jamalpur", "Jashore", "Jhalokati", "Jhenaidah", "Joypurhat", "Khagrachhari", 
-    "Khulna", "Kishoreganj", "Kurigram", "Kushtia", "Lakshmipur", "Lalmonirhat", 
-    "Madaripur", "Magura", "Manikganj", "Meherpur", "Moulvibazar", "Munshiganj", 
-    "Mymensingh", "Naogaon", "Narail", "Narayanganj", "Narsingdi", "Natore", 
-    "Netrokona", "Nilphamari", "Noakhali", "Pabna", "Panchagarh", "Patuakhali", 
-    "Pirojpur", "Rajbari", "Rajshahi", "Rangamati", "Rangpur", "Satkhira", 
-    "Shariatpur", "Sherpur", "Sirajganj", "Sunamganj", "Sylhet", "Tangail", 
-    "Thakurgaon"
+    "Bagerhat",
+    "Bandarban",
+    "Barguna",
+    "Barishal",
+    "Bhola",
+    "Bogra",
+    "Brahmanbaria",
+    "Chandpur",
+    "Chattogram",
+    "Chuadanga",
+    "Comilla",
+    "Cox's Bazar",
+    "Dhaka",
+    "Dinajpur",
+    "Faridpur",
+    "Feni",
+    "Gaibandha",
+    "Gazipur",
+    "Gopalganj",
+    "Habiganj",
+    "Jamalpur",
+    "Jashore",
+    "Jhalokati",
+    "Jhenaidah",
+    "Joypurhat",
+    "Khagrachhari",
+    "Khulna",
+    "Kishoreganj",
+    "Kurigram",
+    "Kushtia",
+    "Lakshmipur",
+    "Lalmonirhat",
+    "Madaripur",
+    "Magura",
+    "Manikganj",
+    "Meherpur",
+    "Moulvibazar",
+    "Munshiganj",
+    "Mymensingh",
+    "Naogaon",
+    "Narail",
+    "Narayanganj",
+    "Narsingdi",
+    "Natore",
+    "Netrokona",
+    "Nilphamari",
+    "Noakhali",
+    "Pabna",
+    "Panchagarh",
+    "Patuakhali",
+    "Pirojpur",
+    "Rajbari",
+    "Rajshahi",
+    "Rangamati",
+    "Rangpur",
+    "Satkhira",
+    "Shariatpur",
+    "Sherpur",
+    "Sirajganj",
+    "Sunamganj",
+    "Sylhet",
+    "Tangail",
+    "Thakurgaon",
   ];
 
   // Donor types
   const donorTypes = [
     { value: "all", label: "All Donors" },
     { value: "active", label: "Active Donors Only" },
-    { value: "inactive", label: "Inactive Donors" }
+    { value: "inactive", label: "Inactive Donors" },
   ];
 
   // Fetch all donors initially
@@ -50,7 +102,7 @@ export default function DonorSearch() {
     try {
       const params = {
         page: 1,
-        pageSize: 50 // Load first 50 donors to show
+        pageSize: 50, // Load first 50 donors to show
       };
 
       const response = await searchDonors(params);
@@ -66,35 +118,6 @@ export default function DonorSearch() {
     }
   };
 
-  // Search with filters
-  const handleSearch = async (pageNum = 1) => {
-    if (!filters.bloodGroup) {
-      alert("Please select a blood group to search");
-      return;
-    }
-
-    setSearching(true);
-    try {
-      const params = {
-        bloodGroup: filters.bloodGroup,
-        district: filters.district || null,
-        page: pageNum,
-        pageSize
-      };
-
-      const response = await searchDonors(params);
-      setDonors(response.data.donors || []);
-      setTotalDonors(response.data.totalCount || 0);
-      setTotalPages(response.data.totalPages || 1);
-      setPage(pageNum);
-    } catch (error) {
-      console.error("Search failed:", error);
-      alert("Failed to search donors. Please try again.");
-    } finally {
-      setSearching(false);
-    }
-  };
-
   // Filter from all donors locally
   const filterDonorsLocally = () => {
     if (!filters.bloodGroup) {
@@ -103,41 +126,43 @@ export default function DonorSearch() {
     }
 
     setSearching(true);
-    
+
     // Simulate API delay for better UX
     setTimeout(() => {
       let filtered = [...allDonors];
-      
+
       // Filter by blood group
       if (filters.bloodGroup) {
-        filtered = filtered.filter(d => {
+        filtered = filtered.filter((d) => {
           const donor = d.donor || d;
           return donor.bloodGroup === filters.bloodGroup;
         });
       }
-      
+
       // Filter by district
       if (filters.district) {
-        filtered = filtered.filter(d => {
+        filtered = filtered.filter((d) => {
           const donor = d.donor || d;
-          return donor.presentDistrict === filters.district || 
-                 donor.permanentDistrict === filters.district;
+          return (
+            donor.presentDistrict === filters.district ||
+            donor.permanentDistrict === filters.district
+          );
         });
       }
-      
+
       // Filter by donor type
       if (filters.donorType === "active") {
-        filtered = filtered.filter(d => {
+        filtered = filtered.filter((d) => {
           const donor = d.donor || d;
           return donor.isAvailable === true;
         });
       } else if (filters.donorType === "inactive") {
-        filtered = filtered.filter(d => {
+        filtered = filtered.filter((d) => {
           const donor = d.donor || d;
           return donor.isAvailable === false;
         });
       }
-      
+
       setDonors(filtered);
       setTotalDonors(filtered.length);
       setTotalPages(Math.ceil(filtered.length / pageSize));
@@ -148,9 +173,9 @@ export default function DonorSearch() {
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -165,42 +190,33 @@ export default function DonorSearch() {
 
   const getTimeSinceLastDonation = (dateString) => {
     if (!dateString) return "Never donated";
-    
+
     const lastDonation = new Date(dateString);
     const now = new Date();
-    const diffMonths = Math.floor((now - lastDonation) / (1000 * 60 * 60 * 24 * 30));
-    
+    const diffMonths = Math.floor(
+      (now - lastDonation) / (1000 * 60 * 60 * 24 * 30)
+    );
+
     if (diffMonths === 0) return "This month";
     if (diffMonths === 1) return "1 month ago";
     if (diffMonths < 12) return `${diffMonths} months ago`;
-    
+
     const diffYears = Math.floor(diffMonths / 12);
-    return `${diffYears} year${diffYears > 1 ? 's' : ''} ago`;
+    return `${diffYears} year${diffYears > 1 ? "s" : ""} ago`;
   };
 
   const getRandomColor = () => {
     const colors = [
-      "bg-red-100 border-red-200",
-      "bg-pink-100 border-pink-200",
-      "bg-rose-100 border-rose-200",
-      "bg-orange-100 border-orange-200"
+      "bg-gradient-to-br from-red-100 to-red-50",
+      "bg-gradient-to-br from-pink-100 to-pink-50",
+      "bg-gradient-to-br from-rose-100 to-rose-50",
+      "bg-gradient-to-br from-orange-100 to-orange-50",
     ];
     return colors[Math.floor(Math.random() * colors.length)];
   };
 
-  // Format date for display
-  const formatDate = (dateString) => {
-    if (!dateString) return "Not available";
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-  };
-
   // Load all donors on component mount
-  useState(() => {
+  useEffect(() => {
     loadAllDonors();
   }, []);
 
@@ -219,159 +235,221 @@ export default function DonorSearch() {
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="flex justify-center mb-4">
-            {/* <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center shadow-lg">
-              <span className="text-white text-3xl">❤️</span>
-            </div> */}
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <div className="w-24 h-24 bg-gradient-to-br from-red-500 via-red-600 to-red-700 rounded-full flex items-center justify-center shadow-2xl animate-pulse">
+                <span className="text-white text-4xl">🩸</span>
+              </div>
+              <div className="absolute -inset-4 bg-red-200 rounded-full opacity-30 animate-ping"></div>
+            </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-red-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-red-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-red-800">
             Find Blood Donors
           </h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Browse all donors or filter by specific criteria. Every search could save a life.
+            Browse all donors or filter by specific criteria. Every search could
+            save a life.
           </p>
         </div>
 
         {/* Search Filters */}
-        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-8 border border-red-100">
-          <h2 className="text-2xl font-bold text-red-900 mb-6">
-            🔍 Search & Filter Donors
-          </h2>
-          
+        <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 mb-10 border border-red-100">
+          <div className="flex items-center mb-6">
+            <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mr-4">
+              <span className="text-2xl">🔍</span>
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-red-900">
+                Search & Filter Donors
+              </h2>
+              <p className="text-gray-600">Find donors by your specific needs</p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Blood Group */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                🩸 Blood Group *
+            <div className="space-y-2">
+              <label className="flex items-center text-sm font-semibold text-gray-700">
+                <span className="mr-2">🩸</span> Blood Group *
               </label>
-              <select
-                name="bloodGroup"
-                value={filters.bloodGroup}
-                onChange={handleFilterChange}
-                className="w-full p-3 border-2 border-red-100 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-300"
-                required
-              >
-                <option value="">Select Blood Group</option>
-                {bloodGroups.map(bg => (
-                  <option key={bg} value={bg} className="py-2">
-                    {bg} {bg.includes('+') ? 'Positive' : 'Negative'}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  name="bloodGroup"
+                  value={filters.bloodGroup}
+                  onChange={handleFilterChange}
+                  className="w-full p-4 border-2 border-red-100 rounded-xl focus:border-red-500 focus:ring-3 focus:ring-red-100 transition-all duration-300 appearance-none bg-white"
+                  required
+                >
+                  <option value="">Select Blood Group</option>
+                  {bloodGroups.map((bg) => (
+                    <option key={bg} value={bg} className="py-3">
+                      {bg} {bg.includes("+") ? "Positive" : "Negative"}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                  <span className="text-red-400">▼</span>
+                </div>
+              </div>
             </div>
 
             {/* District */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                📍 Select District
+            <div className="space-y-2">
+              <label className="flex items-center text-sm font-semibold text-gray-700">
+                <span className="mr-2">📍</span> Select District
               </label>
-              <select
-                name="district"
-                value={filters.district}
-                onChange={handleFilterChange}
-                className="w-full p-3 border-2 border-red-100 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-300"
-              >
-                <option value="">All Districts of Bangladesh</option>
-                {allDistricts.sort().map(district => (
-                  <option key={district} value={district}>{district}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  name="district"
+                  value={filters.district}
+                  onChange={handleFilterChange}
+                  className="w-full p-4 border-2 border-red-100 rounded-xl focus:border-red-500 focus:ring-3 focus:ring-red-100 transition-all duration-300 appearance-none bg-white"
+                >
+                  <option value="">All Districts of Bangladesh</option>
+                  {allDistricts.sort().map((district) => (
+                    <option key={district} value={district}>
+                      {district}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                  <span className="text-red-400">▼</span>
+                </div>
+              </div>
             </div>
 
             {/* Donor Type */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                👥 Donor Status
+            <div className="space-y-2">
+              <label className="flex items-center text-sm font-semibold text-gray-700">
+                <span className="mr-2">👥</span> Donor Status
               </label>
-              <select
-                name="donorType"
-                value={filters.donorType}
-                onChange={handleFilterChange}
-                className="w-full p-3 border-2 border-red-100 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-300"
-              >
-                {donorTypes.map(type => (
-                  <option key={type.value} value={type.value} className="py-2">
-                    {type.label}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  name="donorType"
+                  value={filters.donorType}
+                  onChange={handleFilterChange}
+                  className="w-full p-4 border-2 border-red-100 rounded-xl focus:border-red-500 focus:ring-3 focus:ring-red-100 transition-all duration-300 appearance-none bg-white"
+                >
+                  {donorTypes.map((type) => (
+                    <option key={type.value} value={type.value} className="py-3">
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                  <span className="text-red-400">▼</span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Search Buttons */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={filterDonorsLocally}
               disabled={searching || !filters.bloodGroup}
-              className="bg-gradient-to-r from-red-600 to-red-500 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-red-700 hover:to-red-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              className="relative bg-gradient-to-r from-red-600 to-red-500 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-2xl hover:from-red-700 hover:to-red-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 min-w-[200px] group overflow-hidden"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               {searching ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Filtering...
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin relative z-10"></div>
+                  <span className="relative z-10">Filtering...</span>
                 </>
               ) : (
                 <>
-                  🔍 Filter Donors
+                  <span className="text-xl relative z-10">🔍</span>
+                  <span className="relative z-10">Filter Donors</span>
                 </>
               )}
             </button>
-            
+
             <button
               onClick={loadAllDonors}
               disabled={loading}
-              className="bg-gradient-to-r from-gray-600 to-gray-500 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-gray-700 hover:to-gray-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              className="relative bg-gradient-to-r from-gray-700 to-gray-600 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-2xl hover:from-gray-800 hover:to-gray-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 min-w-[200px] group overflow-hidden"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-800 to-gray-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               {loading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Loading...
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin relative z-10"></div>
+                  <span className="relative z-10">Loading...</span>
                 </>
               ) : (
                 <>
-                  🔄 Show All Donors
+                  <span className="text-xl relative z-10">🔄</span>
+                  <span className="relative z-10">Show All Donors</span>
                 </>
               )}
             </button>
           </div>
+
+          {/* Active Filters Display */}
+          {(filters.bloodGroup || filters.district || filters.donorType !== "all") && (
+            <div className="mt-6 pt-6 border-t border-red-100">
+              <h3 className="text-sm font-semibold text-gray-600 mb-3">Active Filters:</h3>
+              <div className="flex flex-wrap gap-2">
+                {filters.bloodGroup && (
+                  <span className="bg-gradient-to-r from-red-100 to-red-50 text-red-700 px-4 py-2 rounded-full text-sm font-medium border border-red-200 flex items-center gap-2">
+                    <span>🩸</span> {filters.bloodGroup}
+                  </span>
+                )}
+                {filters.district && (
+                  <span className="bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium border border-blue-200 flex items-center gap-2">
+                    <span>📍</span> {filters.district}
+                  </span>
+                )}
+                {filters.donorType !== "all" && (
+                  <span className={`px-4 py-2 rounded-full text-sm font-medium border flex items-center gap-2 ${
+                    filters.donorType === "active" 
+                      ? "bg-gradient-to-r from-green-100 to-green-50 text-green-700 border-green-200" 
+                      : "bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 border-gray-200"
+                  }`}>
+                    <span>{filters.donorType === "active" ? "🟢" : "🔴"}</span>
+                    {filters.donorType === "active" ? "Active Only" : "Inactive Only"}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Results */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-            <h2 className="text-2xl font-bold text-red-900">
-              Available Donors
-              {totalDonors > 0 && (
-                <span className="ml-3 text-red-600 bg-red-50 px-3 py-1 rounded-full text-base">
-                  {totalDonors} found
-                </span>
-              )}
-            </h2>
-            
-            {/* Filter Summary */}
-            <div className="flex flex-wrap gap-2">
-              {filters.bloodGroup && (
-                <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-medium">
-                  🩸 {filters.bloodGroup}
-                </span>
-              )}
-              {filters.district && (
-                <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-medium">
-                  📍 {filters.district}
-                </span>
-              )}
-              {filters.donorType !== "all" && (
-                <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm font-medium">
-                  {filters.donorType === "active" ? "🟢 Active" : "🔴 Inactive"}
-                </span>
-              )}
+        {/* Results Section */}
+        <div className="mb-10">
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mr-4">
+                <span className="text-2xl">👥</span>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-red-900">
+                  Available Donors
+                </h2>
+                {totalDonors > 0 && (
+                  <p className="text-gray-600">
+                    Showing {totalDonors} donor{totalDonors !== 1 ? 's' : ''}
+                  </p>
+                )}
+              </div>
             </div>
+            
+            {totalDonors > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Page</span>
+                <span className="bg-red-100 text-red-700 px-3 py-1 rounded-lg font-bold">
+                  {page} of {totalPages}
+                </span>
+              </div>
+            )}
           </div>
 
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-white rounded-2xl p-6 shadow-lg animate-pulse">
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl p-6 shadow-lg animate-pulse"
+                >
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
                     <div className="space-y-2 flex-1">
@@ -383,21 +461,21 @@ export default function DonorSearch() {
               ))}
             </div>
           ) : paginatedDonors.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl shadow-lg">
-              <div className="w-24 h-24 mx-auto mb-6 bg-red-50 rounded-full flex items-center justify-center">
-                <span className="text-red-300 text-4xl">🩸</span>
+            <div className="text-center py-16 bg-gradient-to-br from-white to-red-50 rounded-3xl shadow-lg border border-red-100">
+              <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-red-50 to-red-100 rounded-full flex items-center justify-center shadow-inner">
+                <span className="text-red-300 text-5xl">🩸</span>
               </div>
-              <h3 className="text-2xl font-bold text-gray-700 mb-3">
+              <h3 className="text-2xl font-bold text-gray-800 mb-3">
                 {searching ? "Filtering donors..." : "No donors found"}
               </h3>
               <p className="text-gray-600 max-w-md mx-auto mb-8">
-                {filters.bloodGroup 
-                  ? `No ${filters.bloodGroup} donors found with the selected filters.`
-                  : "Select a blood group to start filtering."}
+                {filters.bloodGroup
+                  ? `No ${filters.bloodGroup} donors found with the selected filters. Try changing your search criteria.`
+                  : "Please select a blood group to start searching."}
               </p>
               <button
                 onClick={loadAllDonors}
-                className="bg-gradient-to-r from-red-600 to-red-500 text-white px-6 py-3 rounded-xl font-bold hover:from-red-700 hover:to-red-600 transition-all duration-300"
+                className="bg-gradient-to-r from-red-600 to-red-500 text-white px-8 py-3 rounded-xl font-bold hover:from-red-700 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 🔄 Show All Donors
               </button>
@@ -408,91 +486,129 @@ export default function DonorSearch() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedDonors.map((item, index) => {
                   const donor = item.donor || item;
-                  
-                  return (
-                    <div 
-                      key={donor.id || index} 
-                      className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-red-100 overflow-hidden group"
-                    >
-                      {/* Blood Group Badge */}
-                      <div className="absolute top-4 right-4 z-10">
-                        <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg font-bold text-lg shadow-lg">
-                          {donor.bloodGroup || "Unknown"}
-                        </div>
-                      </div>
 
-                      {/* Availability Badge */}
-                      <div className="absolute top-4 left-4 z-10">
-                        <div className={`px-3 py-1 rounded-lg font-semibold text-sm shadow-lg ${
-                          donor.isAvailable 
-                            ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
-                            : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white'
-                        }`}>
-                          {donor.isAvailable ? '🟢 Available' : '🔴 Not Available'}
+                  return (
+                    <div
+                      key={donor.id || index}
+                      className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-red-100 overflow-hidden group hover:-translate-y-2"
+                    >
+                      {/* Top Section with Blood Group */}
+                      <div className="relative h-32 bg-gradient-to-r from-red-500 to-red-600">
+                        {/* Blood Group Badge */}
+                        <div className="absolute top-4 right-4 z-10">
+                          <div className="bg-white text-red-600 px-5 py-3 rounded-2xl font-extrabold text-xl shadow-2xl border-2 border-red-200">
+                            {donor.bloodGroup || "Unknown"}
+                          </div>
+                        </div>
+
+                        {/* Availability Badge */}
+                        <div className="absolute top-4 left-4 z-10">
+                          <div
+                            className={`px-4 py-2 rounded-2xl font-bold text-sm shadow-lg border-2 ${
+                              donor.isAvailable
+                                ? "bg-gradient-to-r from-green-500 to-green-600 text-white border-green-300"
+                                : "bg-gradient-to-r from-gray-500 to-gray-600 text-white border-gray-300"
+                            }`}
+                          >
+                            {donor.isAvailable
+                              ? "🟢 Available"
+                              : "🔴 Not Available"}
+                          </div>
+                        </div>
+
+                        {/* Decorative Circle */}
+                        <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-white rounded-full border-4 border-red-100 shadow-lg overflow-hidden">
+                          {donor.photoUrl ? (
+                            <img
+                              src={donor.photoUrl}
+                              alt={donor.user?.fullName || "Donor"}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className={`w-full h-full ${getRandomColor()} flex items-center justify-center`}>
+                              <span className="text-3xl font-bold text-red-600">
+                                {donor.user?.fullName?.charAt(0) || "D"}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
 
                       {/* Donor Info */}
-                      <div className="p-6 pt-12">
-                        {/* Avatar Section */}
-                        <div className="flex items-center gap-4 mb-6">
-                          <div className={`w-20 h-20 rounded-full flex items-center justify-center overflow-hidden ${getRandomColor()}`}>
-                            {donor.photoUrl ? (
-                              <img 
-                                src={donor.photoUrl} 
-                                alt={donor.user?.fullName || "Donor"}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-red-200 to-red-300 flex items-center justify-center">
-                                <span className="text-2xl font-bold text-red-700">
-                                  {donor.user?.fullName?.charAt(0) || "D"}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-bold text-gray-900 group-hover:text-red-600 transition-colors">
-                              {donor.user?.fullName || "Anonymous Donor"}
-                            </h3>
-                            <p className="text-gray-600 mt-1">
+                      <div className="p-6 pt-16">
+                        {/* Name and Basic Info */}
+                        <div className="text-center mb-6">
+                          <h3 className="text-xl font-bold text-gray-900 group-hover:text-red-600 transition-colors">
+                            {donor.user?.fullName || "Anonymous Donor"}
+                          </h3>
+                          <div className="flex items-center justify-center gap-2 mt-2">
+                            <span className="text-gray-600 text-sm">
                               👤 {donor.age ? `${donor.age} years` : "Age not specified"}
-                            </p>
-                            <p className="text-sm text-gray-500 mt-1">
-                              📍 {donor.presentDistrict || donor.permanentDistrict || "Location not specified"}
-                            </p>
+                            </span>
+                            <span className="text-gray-400">•</span>
+                            <span className="text-red-600 font-semibold text-sm">
+                              🩸 {donor.bloodGroup || "Not specified"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Location Info */}
+                        <div className="bg-gradient-to-r from-red-50 to-white rounded-xl p-4 mb-6 border border-red-100">
+                          <div className="grid grid-cols-1 gap-3">
+                            <div className="flex items-start gap-3">
+                              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <span className="text-red-500">📍</span>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-500">Present District</p>
+                                <p className="font-semibold text-gray-800">
+                                  {donor.presentDistrict || "Not specified"}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <span className="text-red-500">🏠</span>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-500">Permanent District</p>
+                                <p className="font-semibold text-gray-800">
+                                  {donor.permanentDistrict || "Not specified"}
+                                </p>
+                              </div>
+                            </div>
                           </div>
                         </div>
 
                         {/* Contact Info */}
-                        <div className="space-y-3 mb-6">
+                        <div className="space-y-4 mb-6">
                           {donor.phone && (
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
-                                <span className="text-red-500">📞</span>
+                              <div className="w-10 h-10 bg-gradient-to-r from-green-100 to-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <span className="text-green-500">📞</span>
                               </div>
-                              <div>
+                              <div className="flex-1">
                                 <p className="text-sm text-gray-500">Phone Number</p>
-                                <a 
+                                <a
                                   href={`tel:${donor.phone}`}
-                                  className="font-semibold text-gray-800 hover:text-red-600 transition-colors"
+                                  className="font-semibold text-gray-800 hover:text-red-600 transition-colors break-all"
                                 >
                                   {donor.phone}
                                 </a>
                               </div>
                             </div>
                           )}
-                          
+
                           {donor.email && (
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
-                                <span className="text-red-500">✉️</span>
+                              <div className="w-10 h-10 bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <span className="text-blue-500">✉️</span>
                               </div>
-                              <div>
+                              <div className="flex-1">
                                 <p className="text-sm text-gray-500">Email Address</p>
-                                <a 
+                                <a
                                   href={`mailto:${donor.email}`}
-                                  className="font-semibold text-gray-800 hover:text-red-600 transition-colors"
+                                  className="font-semibold text-gray-800 hover:text-red-600 transition-colors break-all"
                                 >
                                   {donor.email}
                                 </a>
@@ -502,25 +618,26 @@ export default function DonorSearch() {
                         </div>
 
                         {/* Additional Info */}
-                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-red-50">
-                          <div>
+                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-red-100">
+                          <div className="text-center">
                             <p className="text-sm text-gray-500">📍 District</p>
                             <p className="font-semibold text-gray-800">
                               {donor.presentDistrict || donor.permanentDistrict || "Not specified"}
                             </p>
                           </div>
-                          <div>
+                          <div className="text-center">
                             <p className="text-sm text-gray-500">🩸 Last Donation</p>
-                            <p className={`font-semibold ${donor.lastDonationDate ? 'text-green-600' : 'text-yellow-600'}`}>
+                            <p
+                              className={`font-semibold ${
+                                donor.lastDonationDate
+                                  ? "text-green-600"
+                                  : "text-yellow-600"
+                              }`}
+                            >
                               {getTimeSinceLastDonation(donor.lastDonationDate)}
                             </p>
                           </div>
                         </div>
-
-                        {/* Call to Action */}
-                        {/* <button className="w-full mt-6 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-300 group-hover:shadow-md flex items-center justify-center gap-2">
-                          📞 Contact Donor
-                        </button> */}
                       </div>
                     </div>
                   );
@@ -530,67 +647,73 @@ export default function DonorSearch() {
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="text-gray-600">
-                    Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, totalDonors)} of {totalDonors} donors
-                    {filters.donorType === "active" && " • Showing active donors only"}
+                  <div className="text-gray-600 text-sm">
+                    Showing {(page - 1) * pageSize + 1} to{" "}
+                    {Math.min(page * pageSize, totalDonors)} of {totalDonors}{" "}
+                    donors
+                    {filters.donorType === "active" &&
+                      " • Showing active donors only"}
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handlePageChange(page - 1)}
                       disabled={page === 1}
-                      className="px-4 py-2 border-2 border-red-200 text-red-600 rounded-xl font-semibold hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-5 py-2.5 border-2 border-red-200 text-red-600 rounded-xl font-semibold hover:bg-red-50 hover:border-red-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center gap-2"
                     >
-                      ← Previous
+                      <span>←</span> Previous
                     </button>
-                    
+
                     <div className="flex items-center gap-1">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        let pageNum;
-                        if (totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (page <= 3) {
-                          pageNum = i + 1;
-                        } else if (page >= totalPages - 2) {
-                          pageNum = totalPages - 4 + i;
-                        } else {
-                          pageNum = page - 2 + i;
+                      {Array.from(
+                        { length: Math.min(5, totalPages) },
+                        (_, i) => {
+                          let pageNum;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (page <= 3) {
+                            pageNum = i + 1;
+                          } else if (page >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = page - 2 + i;
+                          }
+
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => handlePageChange(pageNum)}
+                              className={`w-10 h-10 rounded-xl font-semibold transition-all duration-300 ${
+                                page === pageNum
+                                  ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-lg"
+                                  : "text-red-600 hover:bg-red-50 border border-red-100"
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
                         }
-                        
-                        return (
-                          <button
-                            key={pageNum}
-                            onClick={() => handlePageChange(pageNum)}
-                            className={`w-10 h-10 rounded-xl font-semibold transition-all ${
-                              page === pageNum
-                                ? 'bg-red-600 text-white shadow-lg'
-                                : 'text-red-600 hover:bg-red-50'
-                            }`}
-                          >
-                            {pageNum}
-                          </button>
-                        );
-                      })}
-                      
+                      )}
+
                       {totalPages > 5 && page < totalPages - 2 && (
                         <>
-                          <span className="text-red-400">...</span>
+                          <span className="text-red-400 px-2">...</span>
                           <button
                             onClick={() => handlePageChange(totalPages)}
-                            className="w-10 h-10 rounded-xl text-red-600 hover:bg-red-50 font-semibold"
+                            className="w-10 h-10 rounded-xl text-red-600 hover:bg-red-50 font-semibold border border-red-100"
                           >
                             {totalPages}
                           </button>
                         </>
                       )}
                     </div>
-                    
+
                     <button
                       onClick={() => handlePageChange(page + 1)}
                       disabled={page === totalPages}
-                      className="px-4 py-2 border-2 border-red-200 text-red-600 rounded-xl font-semibold hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-5 py-2.5 border-2 border-red-200 text-red-600 rounded-xl font-semibold hover:bg-red-50 hover:border-red-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center gap-2"
                     >
-                      Next →
+                      Next <span>→</span>
                     </button>
                   </div>
                 </div>
@@ -599,25 +722,41 @@ export default function DonorSearch() {
           )}
         </div>
 
-        {/* Info Banner */}
-        <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl p-8 text-white shadow-xl">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <h3 className="text-2xl font-bold mb-2">🚨 Need Immediate Help?</h3>
-              <p className="opacity-90">
-                For emergency blood requirements, please contact our 24/7 helpline
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold mb-1">+880 123-456-7890</div>
-              <p className="text-sm opacity-80">24/7 Emergency Helpline</p>
+        {/* Emergency Banner */}
+        <div className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-red-800 opacity-10"></div>
+          <div className="relative z-10">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex-1">
+                <div className="flex items-center mb-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <span className="text-2xl">🚨</span>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold">Need Immediate Help?</h3>
+                    <p className="opacity-90">
+                      For emergency blood requirements, contact our 24/7 helpline
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-1 bg-white/10 px-6 py-3 rounded-2xl">
+                  +880 123-456-7890
+                </div>
+                <p className="text-sm opacity-80">24/7 Emergency Helpline</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* District Info */}
-        <div className="mt-8 text-center text-gray-600 text-sm">
-          <p>📌 Showing donors from all 64 districts of Bangladesh • Active donors are highlighted in green</p>
+        {/* Footer Info */}
+        <div className="mt-8 text-center">
+          <p className="text-gray-600 text-sm">
+            📌 Showing donors from all 64 districts of Bangladesh • 
+            <span className="mx-2">🟢</span> Active donors • 
+            <span className="mx-2">🔴</span> Inactive donors
+          </p>
         </div>
       </div>
     </div>

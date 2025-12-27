@@ -36,9 +36,10 @@ export const getDistricts = () => api.get("/donors/districts");
 
 // ADD THIS: Photo upload function
 export const uploadDonorPhoto = (formData) =>
-  api.post("/donors/upload-photo", formData, {
+  api.post("/donors/me/photo", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+
 
 /* ADMIN */
 export const getAllUsers = () => api.get("/admin/users");

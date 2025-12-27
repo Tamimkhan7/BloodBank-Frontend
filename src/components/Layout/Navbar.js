@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { isLoggedIn, removeToken, getUserRole } from "../../utils/auth";
 import { useState } from "react";
+import SafetyGuidelinesPage from "../../pages/SafetyGuidelinesPage";
 
 export default function Navbar() {
   const role = getUserRole(); // "Admin" | "User"
@@ -15,10 +16,10 @@ export default function Navbar() {
   const handleUnauthorizedClick = (e, featureName) => {
     e.preventDefault();
     alert(`Please login to ${featureName.toLowerCase()}`);
-    window.location.href = "/register"; // রেজিস্টার পেজে নিয়ে যাচ্ছি
+    window.location.href = "/register"; // reg page a niye jabe
   };
 
-  // লগইন না করলে স্পেসিফিক পেজে ক্লিক করলে রেজিস্টারে নিয়ে যাবে
+  // login kora na thakle onno kono page a click korle login page a niye jabe
   const handleUnauthorizedNavClick = (e) => {
     e.preventDefault();
     alert("Please register first to access this feature");
@@ -28,32 +29,74 @@ export default function Navbar() {
   return (
     <nav className="bg-gradient-to-r from-red-700 to-red-800 text-white fixed w-full top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-        <Link to="/home" className="text-2xl font-bold hover:text-red-200 transition-colors duration-200">
-          Blood<span className="text-red-200 hover:text-white transition-colors duration-200">Bank</span>
+        <Link
+          to="/home"
+          className="text-2xl font-bold hover:text-red-200 transition-colors duration-200"
+        >
+          Blood
+          <span className="text-red-200 hover:text-white transition-colors duration-200">
+            Bank
+          </span>
         </Link>
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-6">
-          <Link to="/home" className="hover:text-red-200 transition-colors duration-200">Home</Link>
-          <Link to="/about" className="hover:text-red-200 transition-colors duration-200">About</Link>
-          
-          {/* Search Donors - লগইন না করলে রেজিস্টারে নিয়ে যাবে */}
+          <Link
+            to="/home"
+            className="hover:text-red-200 transition-colors duration-200"
+          >
+            Home
+          </Link>
+          <Link
+            to="/about"
+            className="hover:text-red-200 transition-colors duration-200"
+          >
+            About
+          </Link>
+
+           {/* <div className="hidden md:flex items-center gap-6">
+          <Link
+            to="/home"
+            className="hover:text-red-200 transition-colors duration-200"
+          >
+            Home
+          </Link> */}
+
+          <Link
+               to="/safety-guidelines"
+            className="hover:text-red-200 transition-colors duration-200"
+          >
+             Guidelines
+          </Link>
+
+         
+          {/* Search Donors - login kora na thakle onno kono page a click korle reg page a niye jabe/}
           {loggedIn ? (
-            <Link to="/search" className="hover:text-red-200 transition-colors duration-200">Search Donors</Link>
+            <Link
+              to="/search"
+              className="hover:text-red-200 transition-colors duration-200"
+            >
+              Search Donors
+            </Link>
           ) : (
-            <button 
+            <button
               onClick={handleUnauthorizedNavClick}
               className="hover:text-red-200 transition-colors duration-200 cursor-pointer"
             >
               Search Donors
             </button>
           )}
-          
-          {/* Contact - লগইন না করলে রেজিস্টারে নিয়ে যাবে */}
+
+          {/* Contact - login kora na thakle onno kono page a click korle reg page a niye jabe */}
           {loggedIn ? (
-            <Link to="/contact" className="hover:text-red-200 transition-colors duration-200">Contact</Link>
+            <Link
+              to="/contact"
+              className="hover:text-red-200 transition-colors duration-200"
+            >
+              Contact
+            </Link>
           ) : (
-            <button 
+            <button
               onClick={handleUnauthorizedNavClick}
               className="hover:text-red-200 transition-colors duration-200 cursor-pointer"
             >
@@ -61,11 +104,16 @@ export default function Navbar() {
             </button>
           )}
 
-          {/* Add Blood Request - লগইন না করলে রেজিস্টারে নিয়ে যাবে */}
+          {/* Add Blood Request - login kora na thakle onno kono page a click korle reg page a niye jabe */}
           {loggedIn ? (
-            <Link to="/blood-request" className="hover:text-red-200 transition-colors duration-200">Add Blood Request</Link>
+            <Link
+              to="/blood-request"
+              className="hover:text-red-200 transition-colors duration-200"
+            >
+              Add Blood Request
+            </Link>
           ) : (
-            <button 
+            <button
               onClick={handleUnauthorizedNavClick}
               className="hover:text-red-200 transition-colors duration-200 cursor-pointer"
             >
@@ -81,8 +129,8 @@ export default function Navbar() {
               >
                 Login
               </Link>
-              <Link 
-                to="/register" 
+              <Link
+                to="/register"
                 className="bg-red-600 px-4 py-1 rounded hover:bg-red-500 hover:text-white transition-colors duration-200"
               >
                 Register
@@ -98,8 +146,8 @@ export default function Navbar() {
                   Admin Dashboard
                 </Link>
               ) : (
-                <Link 
-                  to="/Profile" 
+                <Link
+                  to="/Profile"
                   className="bg-red-600 px-4 py-1 rounded hover:bg-red-500 hover:text-white transition-colors duration-200"
                 >
                   Profile
@@ -126,38 +174,38 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Menu with Transition */}
-      <div 
+      <div
         className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
           isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="bg-red-800 px-4 py-4 space-y-3">
-          <Link 
-            to="/home" 
+          <Link
+            to="/home"
             className="block py-2 hover:bg-red-700 px-3 rounded transition-colors duration-200 hover:pl-4"
             onClick={() => setIsMenuOpen(false)}
           >
             Home
           </Link>
-          <Link 
-            to="/about" 
+          <Link
+            to="/about"
             className="block py-2 hover:bg-red-700 px-3 rounded transition-colors duration-200 hover:pl-4"
             onClick={() => setIsMenuOpen(false)}
           >
             About
           </Link>
-          
+
           {/* Search Donors - Mobile */}
           {loggedIn ? (
-            <Link 
-              to="/search" 
+            <Link
+              to="/search"
               className="block py-2 hover:bg-red-700 px-3 rounded transition-colors duration-200 hover:pl-4"
               onClick={() => setIsMenuOpen(false)}
             >
               Search Donors
             </Link>
           ) : (
-            <button 
+            <button
               onClick={(e) => {
                 setIsMenuOpen(false);
                 handleUnauthorizedNavClick(e);
@@ -167,18 +215,18 @@ export default function Navbar() {
               Search Donors
             </button>
           )}
-          
+
           {/* Contact - Mobile */}
           {loggedIn ? (
-            <Link 
-              to="/contact" 
+            <Link
+              to="/contact"
               className="block py-2 hover:bg-red-700 px-3 rounded transition-colors duration-200 hover:pl-4"
               onClick={() => setIsMenuOpen(false)}
             >
               Contact
             </Link>
           ) : (
-            <button 
+            <button
               onClick={(e) => {
                 setIsMenuOpen(false);
                 handleUnauthorizedNavClick(e);
@@ -191,15 +239,15 @@ export default function Navbar() {
 
           {/* Add Blood Request - Mobile */}
           {loggedIn ? (
-            <Link 
-              to="/blood-request" 
+            <Link
+              to="/blood-request"
               className="block py-2 hover:bg-red-700 px-3 rounded transition-colors duration-200 hover:pl-4"
               onClick={() => setIsMenuOpen(false)}
             >
               Add Blood Request
             </Link>
           ) : (
-            <button 
+            <button
               onClick={(e) => {
                 setIsMenuOpen(false);
                 handleUnauthorizedNavClick(e);
@@ -213,23 +261,23 @@ export default function Navbar() {
           {loggedIn ? (
             <>
               {role === "Admin" ? (
-                <Link 
-                  to="/admin/dashboard" 
+                <Link
+                  to="/admin/dashboard"
                   className="block py-2 hover:bg-red-700 px-3 rounded transition-colors duration-200 hover:pl-4"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Admin Dashboard
                 </Link>
               ) : (
-                <Link 
-                  to="/profile" 
+                <Link
+                  to="/profile"
                   className="block py-2 hover:bg-red-700 px-3 rounded transition-colors duration-200 hover:pl-4"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Profile
                 </Link>
               )}
-              <button 
+              <button
                 onClick={() => {
                   setIsMenuOpen(false);
                   handleLogout();
@@ -241,15 +289,15 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
                 className="block py-2 hover:bg-red-700 px-3 rounded transition-colors duration-200 hover:pl-4"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Login
               </Link>
-              <Link 
-                to="/register" 
+              <Link
+                to="/register"
                 className="block py-2 hover:bg-red-700 px-3 rounded transition-colors duration-200 hover:pl-4"
                 onClick={() => setIsMenuOpen(false)}
               >
