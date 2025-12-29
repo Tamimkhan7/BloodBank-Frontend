@@ -16,18 +16,19 @@ import { useEffect } from "react";
 export default function Footer() {
   const location = useLocation();
 
-  // যখন লোকেশন চেঞ্জ হয়, তখন স্ক্রল টপে নিয়ে যাও
+  // jokhn location change hoy, tokhn scroll top a niye jay 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
 
-  // লিঙ্ক ক্লিক হ্যান্ডলার
+
+  // link click handaler
   const handleLinkClick = (e) => {
-    // শুধু রাউট চেঞ্জ করবে, স্ক্রল করবে না
+    // just route change korbe , scroll korbe na
     e.preventDefault();
     const href = e.currentTarget.getAttribute("href");
     window.history.pushState({}, "", href);
-    // রাউট চেঞ্জের জন্য একটি কাস্টম ইভেন্ট ট্রিগার করুন
+    // route change jonno akti coustom event trigar korun
     window.dispatchEvent(new Event("popstate"));
   };
 
@@ -52,7 +53,7 @@ export default function Footer() {
             <div className="flex items-center space-x-2 text-sm">
               <FaHeart className="text-red-300 animate-pulse" />
               <span>Made with love by</span>
-              <span className="font-semibold text-red-100">Tamim Khan</span>
+              <span className="font-semibold text-red-100 hover:underline"> <a href="https://www.facebook.com/tamimkhan842/" target="_blank">Md Tamim Khan</a> </span>
             </div>
 
             {/* Redesigned Dedication Section */}
@@ -60,7 +61,10 @@ export default function Footer() {
               <div className="flex items-start space-x-2 text-sm">
                 <span className="text-red-200 font-medium mt-0.5">→</span>
                 <span className="text-gray-200">
-                  Dedicated to 59D Batch (Dept. Of CSE)
+                  Dedicated to 59D Batch (Dept. Of CSE), 
+                <div className="text-xs text-gray-300 italic ml-4">
+                 prime university
+              </div>
                 </span>
               </div>
               <div className="flex items-start space-x-2 text-sm">
@@ -73,7 +77,7 @@ export default function Footer() {
                     rel="noopener noreferrer"
                     className="font-semibold text-red-100 hover:underline"
                   >
-                    Md. Mahfuzur Rahma Sir
+                    Md. Mahfuzur Rahman
                   </a>
                 </span>
               </div>
@@ -180,7 +184,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact & Social - এগুলো একই রাখুন কারণ এগুলো এক্সটার্নাল লিঙ্ক */}
+          {/* contact and social aigula akai rakhun karon aigula extranal link  */}
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-white border-b border-red-400 pb-2">
               Contact Us

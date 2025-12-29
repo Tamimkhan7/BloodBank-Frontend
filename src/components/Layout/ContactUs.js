@@ -94,7 +94,7 @@ export default function ContactUs() {
                     href="sms:01582896328" 
                     className="text-red-100 hover:text-white transition-colors text-lg font-semibold"
                   >
-                    01582896328
+                    01525252525
                   </a>
                   <p className="text-red-200 text-sm mt-1">(Only SMS - Available 24/7)</p>
                 </div>

@@ -395,7 +395,7 @@ export default function Home() {
               <div className="inline-flex flex-col sm:flex-row items-center gap-4 bg-red-700 bg-opacity-30 rounded-2xl p-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold">📱 SMS Service</div>
-                  <div className="text-xl">01582896328</div>
+                  <div className="text-xl">01525252525</div>
                 </div>
                 <div className="h-12 w-px bg-red-400 hidden sm:block"></div>
                 <div className="text-center">

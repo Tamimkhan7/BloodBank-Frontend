@@ -54,7 +54,7 @@ export default function Navbar() {
             About
           </Link>
 
-           {/* <div className="hidden md:flex items-center gap-6">
+          {/* <div className="hidden md:flex items-center gap-6">
           <Link
             to="/home"
             className="hover:text-red-200 transition-colors duration-200"
@@ -63,14 +63,13 @@ export default function Navbar() {
           </Link> */}
 
           <Link
-               to="/safety-guidelines"
+            to="/safety-guidelines"
             className="hover:text-red-200 transition-colors duration-200"
           >
-             Guidelines
+            Guidelines
           </Link>
 
-         
-          {/* Search Donors - login kora na thakle onno kono page a click korle reg page a niye jabe/}
+          {/* { Search Donors - login kora na thakle onno kono page a click korle reg page a niye jabe/} */}
           {loggedIn ? (
             <Link
               to="/search"
@@ -147,10 +146,10 @@ export default function Navbar() {
                 </Link>
               ) : (
                 <Link
-                  to="/Profile"
+                  to="/donor/dashboard"
                   className="bg-red-600 px-4 py-1 rounded hover:bg-red-500 hover:text-white transition-colors duration-200"
                 >
-                  Profile
+                  Donor Dashboard
                 </Link>
               )}
 
@@ -269,12 +268,11 @@ export default function Navbar() {
                   Admin Dashboard
                 </Link>
               ) : (
-                <Link
-                  to="/profile"
-                  className="block py-2 hover:bg-red-700 px-3 rounded transition-colors duration-200 hover:pl-4"
-                  onClick={() => setIsMenuOpen(false)}
+                 <Link
+                  to="/donor/dashboard"
+                  className="bg-red-600 px-4 py-1 rounded hover:bg-red-500 hover:text-white transition-colors duration-200"
                 >
-                  Profile
+                  Donor Dashboard
                 </Link>
               )}
               <button

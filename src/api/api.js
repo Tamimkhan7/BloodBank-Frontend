@@ -28,26 +28,39 @@ export const getMyDonorProfile = () => api.get("/donors/me");
 export const updateMyDonorProfile = (data) => api.post("/donors/me", data);
 
 // Search donors with blood group and district
-export const searchDonors = (params) => 
-  api.get("/donors/search", { params });
+export const searchDonors = (params) =>   api.get("/donors/search", { params });
+// export const Getdistricts = () => api.get("/donors/districts");
 
 // Get available districts (returns all 64 districts)
 export const getDistricts = () => api.get("/donors/districts");
 
-// ADD THIS: Photo upload function
+// ADD THIS-- Photo upload function
 export const uploadDonorPhoto = (formData) =>
   api.post("/donors/me/photo", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 
+  //donation history
 
-/* ADMIN */
+// donation history (FIXED)
+export const addDonation = (data) => api.post("/donors/me/donation", data);
+export const getMyDonations = () =>  api.get("/donors/me/donations");
+
+// admin
+export const getAdminDonors = () =>
+  api.get("/admin/donors");
+
+export const getDonorDonationHistory = (donorId) => api.get(`/admin/donations/${donorId}`);
+export const updateDonation = (id, data) => api.put(`/admin/donations/${id}`, data);
+export const deleteDonation = (id) => api.delete(`/admin/donations/${id}`);
+
+
+// ADMIN 
 export const getAllUsers = () => api.get("/admin/users");
 export const toggleBanUser = (id) => api.post(`/admin/toggleBan/${id}`);
-export const adminUpdateDonor = (userId, data) =>
-  api.put(`/admin/donor/${userId}`, data);
+export const adminUpdateDonor = (userId, data) => api.put(`/admin/donor/${userId}`, data);
 
-/* CONTACT */
+// CONTACT
 export const sendContactMessage = (data) => api.post("/contacts", data);
 export const getAllContactMessages = () => api.get("/contacts");
 // export const adminReply = (id, reply) => api.put(`/contacts/${id}/reply`, reply);

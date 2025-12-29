@@ -162,6 +162,37 @@ export default function Dashboard() {
                   </div>
                 </div>
               </Link>
+
+              {/* donation History Card */}
+              <Link
+                to="/admin/donation"
+                className="group relative overflow-hidden"
+              >
+                <div className="absolute -inset-4 bg-gradient-to-r from-purple-500 to-blue-600 rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <div className="relative bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 border border-gray-100 h-full">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <span className="text-white text-2xl">📋</span>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900 group-hover:text-purple-700 transition-colors">
+                        Donation History
+                      </h2>
+                      <div className="w-16 h-1 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full mt-2"></div>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 mb-6">
+                    View comprehensive donation history from all users, track
+                    contributions, and manage donation records.
+                  </p>
+                   <div className="flex items-center justify-between mt-auto">
+                    <span className="text-red-600 font-semibold group-hover:text-red-700 transition-colors">
+                      View History →
+                    </span>
+                    <span className="text-red-500 text-2xl">→</span>
+                  </div>
+                </div>
+              </Link>
             </>
           )}
 
@@ -251,23 +282,27 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Stats (Optional - can add later) */}
-        <div className="mt-12 bg-gradient-to-r from-red-600 to-red-500 rounded-2xl p-6 md:p-8 text-white shadow-2xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold mb-2">
-                {role === "Admin" ? "👑" : "🩸"}
-              </div>
-              <div className="text-lg font-medium">
-                {role || "Donor"} Account
-              </div>
+        <div className="mt-16 mb-8">
+          <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-3xl p-8 md:p-12 text-white shadow-2xl relative overflow-hidden">
+            {/* Background pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -mr-32 -mt-32"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full -ml-32 -mb-32"></div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold mb-2">24/7</div>
-              <div className="text-lg font-medium">Dashboard Access</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold mb-2"></div>
-              <div className="text-lg font-medium">Always Connected</div>
+
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                <div className="text-center md:text-left">
+                  <h3 className="text-2xl font-bold mb-4">Need Assistance?</h3>
+                  <p className="text-gray-300 max-w-lg">
+                    Our support team is available 24/7 to help you with any
+                    questions or issues you may encounter.
+                  </p>
+                </div>
+                <button className="px-8 py-3 bg-white text-gray-900 font-semibold rounded-full hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                  📞 +880 1234-567890
+                </button>
+              </div>
             </div>
           </div>
         </div>

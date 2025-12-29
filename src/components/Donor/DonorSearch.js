@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { searchDonors } from "../../api/api";
+import { searchDonors, getMyDonations } from "../../api/api";
 
 export default function DonorSearch() {
   const [filters, setFilters] = useState({
     bloodGroup: "",
     district: "",
-    donorType: "all", // all, active, inactive
+    donorType: "all", // all, available, unavailable
   });
 
   const [donors, setDonors] = useState([]);
@@ -24,77 +24,60 @@ export default function DonorSearch() {
 
   // All 64 Districts of Bangladesh
   const allDistricts = [
-    "Bagerhat",
-    "Bandarban",
-    "Barguna",
-    "Barishal",
-    "Bhola",
-    "Bogra",
-    "Brahmanbaria",
-    "Chandpur",
-    "Chattogram",
-    "Chuadanga",
-    "Comilla",
-    "Cox's Bazar",
-    "Dhaka",
-    "Dinajpur",
-    "Faridpur",
-    "Feni",
-    "Gaibandha",
-    "Gazipur",
-    "Gopalganj",
-    "Habiganj",
-    "Jamalpur",
-    "Jashore",
-    "Jhalokati",
-    "Jhenaidah",
-    "Joypurhat",
-    "Khagrachhari",
-    "Khulna",
-    "Kishoreganj",
-    "Kurigram",
-    "Kushtia",
-    "Lakshmipur",
-    "Lalmonirhat",
-    "Madaripur",
-    "Magura",
-    "Manikganj",
-    "Meherpur",
-    "Moulvibazar",
-    "Munshiganj",
-    "Mymensingh",
-    "Naogaon",
-    "Narail",
-    "Narayanganj",
-    "Narsingdi",
-    "Natore",
-    "Netrokona",
-    "Nilphamari",
-    "Noakhali",
-    "Pabna",
-    "Panchagarh",
-    "Patuakhali",
-    "Pirojpur",
-    "Rajbari",
-    "Rajshahi",
-    "Rangamati",
-    "Rangpur",
-    "Satkhira",
-    "Shariatpur",
-    "Sherpur",
-    "Sirajganj",
-    "Sunamganj",
-    "Sylhet",
-    "Tangail",
-    "Thakurgaon",
+    "Bagerhat", "Bandarban", "Barguna", "Barishal", "Bhola", "Bogra", 
+    "Brahmanbaria", "Chandpur", "Chattogram", "Chuadanga", "Comilla", 
+    "Cox's Bazar", "Dhaka", "Dinajpur", "Faridpur", "Feni", "Gaibandha", 
+    "Gazipur", "Gopalganj", "Habiganj", "Jamalpur", "Jashore", 
+    "Jhalokati", "Jhenaidah", "Joypurhat", "Khagrachhari", "Khulna", 
+    "Kishoreganj", "Kurigram", "Kushtia", "Lakshmipur", "Lalmonirhat", 
+    "Madaripur", "Magura", "Manikganj", "Meherpur", "Moulvibazar", 
+    "Munshiganj", "Mymensingh", "Naogaon", "Narail", "Narayanganj", 
+    "Narsingdi", "Natore", "Netrokona", "Nilphamari", "Noakhali", 
+    "Pabna", "Panchagarh", "Patuakhali", "Pirojpur", "Rajbari", 
+    "Rajshahi", "Rangamati", "Rangpur", "Satkhira", "Shariatpur", 
+    "Sherpur", "Sirajganj", "Sunamganj", "Sylhet", "Tangail", "Thakurgaon"
   ];
 
-  // Donor types
   const donorTypes = [
     { value: "all", label: "All Donors" },
-    { value: "active", label: "Active Donors Only" },
-    { value: "inactive", label: "Inactive Donors" },
+    { value: "available", label: "Available Donors Only" },
+    { value: "unavailable", label: "Unavailable Donors" },
   ];
+
+  // Function to calculate if donor is available (can donate again)
+  const calculateIsAvailable = (lastDonationDate) => {
+    if (!lastDonationDate) return true; // Never donated before, so available
+    
+    const lastDonation = new Date(lastDonationDate);
+    const now = new Date();
+    
+    // Calculate days since last donation
+    const daysSinceLastDonation = Math.floor(
+      (now - lastDonation) / (1000 * 60 * 60 * 24)
+    );
+    
+    // Donors can donate again after 90 days (3 months)
+    const requiredDaysBetweenDonations = 90;
+    
+    return daysSinceLastDonation >= requiredDaysBetweenDonations;
+  };
+
+  // Process donors to add availability status
+  const processDonors = (donorsArray) => {
+    return donorsArray.map(item => {
+      const donor = item.donor || item;
+      const isAvailable = calculateIsAvailable(donor.lastDonationDate);
+      
+      return {
+        ...item,
+        donor: {
+          ...donor,
+          isAvailable,
+          availabilityStatus: isAvailable ? "available" : "unavailable"
+        }
+      };
+    });
+  };
 
   // Fetch all donors initially
   const loadAllDonors = async () => {
@@ -106,10 +89,12 @@ export default function DonorSearch() {
       };
 
       const response = await searchDonors(params);
-      setAllDonors(response.data.donors || []);
-      setTotalDonors(response.data.totalCount || 0);
-      setDonors(response.data.donors || []); // Show all initially
-      setTotalPages(Math.ceil((response.data.donors?.length || 0) / pageSize));
+      const processedDonors = processDonors(response.data.donors || []);
+      
+      setAllDonors(processedDonors);
+      setTotalDonors(processedDonors.length);
+      setDonors(processedDonors); // Show all initially
+      setTotalPages(Math.ceil(processedDonors.length / pageSize));
     } catch (error) {
       console.error("Failed to load donors:", error);
       alert("Failed to load donors. Please try again.");
@@ -133,16 +118,16 @@ export default function DonorSearch() {
 
       // Filter by blood group
       if (filters.bloodGroup) {
-        filtered = filtered.filter((d) => {
-          const donor = d.donor || d;
+        filtered = filtered.filter((item) => {
+          const donor = item.donor || item;
           return donor.bloodGroup === filters.bloodGroup;
         });
       }
 
       // Filter by district
       if (filters.district) {
-        filtered = filtered.filter((d) => {
-          const donor = d.donor || d;
+        filtered = filtered.filter((item) => {
+          const donor = item.donor || item;
           return (
             donor.presentDistrict === filters.district ||
             donor.permanentDistrict === filters.district
@@ -150,18 +135,28 @@ export default function DonorSearch() {
         });
       }
 
-      // Filter by donor type
-      if (filters.donorType === "active") {
-        filtered = filtered.filter((d) => {
-          const donor = d.donor || d;
+      // Filter by donor type (availability)
+      if (filters.donorType === "available") {
+        filtered = filtered.filter((item) => {
+          const donor = item.donor || item;
           return donor.isAvailable === true;
         });
-      } else if (filters.donorType === "inactive") {
-        filtered = filtered.filter((d) => {
-          const donor = d.donor || d;
+      } else if (filters.donorType === "unavailable") {
+        filtered = filtered.filter((item) => {
+          const donor = item.donor || item;
           return donor.isAvailable === false;
         });
       }
+
+      // Sort: available donors first
+      filtered.sort((a, b) => {
+        const donorA = a.donor || a;
+        const donorB = b.donor || b;
+        
+        if (donorA.isAvailable && !donorB.isAvailable) return -1;
+        if (!donorA.isAvailable && donorB.isAvailable) return 1;
+        return 0;
+      });
 
       setDonors(filtered);
       setTotalDonors(filtered.length);
@@ -181,9 +176,6 @@ export default function DonorSearch() {
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
-      const startIndex = (newPage - 1) * pageSize;
-      const endIndex = startIndex + pageSize;
-      setDonors(allDonors.slice(startIndex, endIndex));
       setPage(newPage);
     }
   };
@@ -203,6 +195,36 @@ export default function DonorSearch() {
 
     const diffYears = Math.floor(diffMonths / 12);
     return `${diffYears} year${diffYears > 1 ? "s" : ""} ago`;
+  };
+
+  // Get availability text with days calculation
+  const getAvailabilityText = (lastDonationDate) => {
+    const isAvailable = calculateIsAvailable(lastDonationDate);
+    
+    if (!lastDonationDate) {
+      return { 
+        text: "Available (Never donated)", 
+        isAvailable: true 
+      };
+    }
+
+    const lastDonation = new Date(lastDonationDate);
+    const now = new Date();
+    const daysSince = Math.floor((now - lastDonation) / (1000 * 60 * 60 * 24));
+    const daysNeeded = 90;
+    const daysLeft = daysNeeded - daysSince;
+
+    if (isAvailable) {
+      return { 
+        text: "Available to donate", 
+        isAvailable: true 
+      };
+    } else {
+      return { 
+        text: `Available in ${daysLeft} days`, 
+        isAvailable: false 
+      };
+    }
   };
 
   const getRandomColor = () => {
@@ -247,8 +269,7 @@ export default function DonorSearch() {
             Find Blood Donors
           </h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Browse all donors or filter by specific criteria. Every search could
-            save a life.
+            Browse all donors or filter by specific criteria. Every search could save a life.
           </p>
         </div>
 
@@ -401,12 +422,12 @@ export default function DonorSearch() {
                 )}
                 {filters.donorType !== "all" && (
                   <span className={`px-4 py-2 rounded-full text-sm font-medium border flex items-center gap-2 ${
-                    filters.donorType === "active" 
+                    filters.donorType === "available" 
                       ? "bg-gradient-to-r from-green-100 to-green-50 text-green-700 border-green-200" 
                       : "bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 border-gray-200"
                   }`}>
-                    <span>{filters.donorType === "active" ? "🟢" : "🔴"}</span>
-                    {filters.donorType === "active" ? "Active Only" : "Inactive Only"}
+                    <span>{filters.donorType === "available" ? "🟢" : "🔴"}</span>
+                    {filters.donorType === "available" ? "Available Only" : "Unavailable Only"}
                   </span>
                 )}
               </div>
@@ -428,6 +449,8 @@ export default function DonorSearch() {
                 {totalDonors > 0 && (
                   <p className="text-gray-600">
                     Showing {totalDonors} donor{totalDonors !== 1 ? 's' : ''}
+                    {filters.donorType === "available" && " (Available only)"}
+                    {filters.donorType === "unavailable" && " (Unavailable only)"}
                   </p>
                 )}
               </div>
@@ -486,6 +509,8 @@ export default function DonorSearch() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedDonors.map((item, index) => {
                   const donor = item.donor || item;
+                  const availabilityInfo = getAvailabilityText(donor.lastDonationDate);
+                  const isAvailable = donor.isAvailable || availabilityInfo.isAvailable;
 
                   return (
                     <div
@@ -493,7 +518,7 @@ export default function DonorSearch() {
                       className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-red-100 overflow-hidden group hover:-translate-y-2"
                     >
                       {/* Top Section with Blood Group */}
-                      <div className="relative h-32 bg-gradient-to-r from-red-500 to-red-600">
+                      <div className={`relative h-32 ${isAvailable ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-gray-500 to-gray-600'}`}>
                         {/* Blood Group Badge */}
                         <div className="absolute top-4 right-4 z-10">
                           <div className="bg-white text-red-600 px-5 py-3 rounded-2xl font-extrabold text-xl shadow-2xl border-2 border-red-200">
@@ -505,14 +530,12 @@ export default function DonorSearch() {
                         <div className="absolute top-4 left-4 z-10">
                           <div
                             className={`px-4 py-2 rounded-2xl font-bold text-sm shadow-lg border-2 ${
-                              donor.isAvailable
+                              isAvailable
                                 ? "bg-gradient-to-r from-green-500 to-green-600 text-white border-green-300"
                                 : "bg-gradient-to-r from-gray-500 to-gray-600 text-white border-gray-300"
                             }`}
                           >
-                            {donor.isAvailable
-                              ? "🟢 Available"
-                              : "🔴 Not Available"}
+                            {isAvailable ? "🟢 Available" : "🔴 Not Available"}
                           </div>
                         </div>
 
@@ -546,14 +569,21 @@ export default function DonorSearch() {
                               👤 {donor.age ? `${donor.age} years` : "Age not specified"}
                             </span>
                             <span className="text-gray-400">•</span>
-                            <span className="text-red-600 font-semibold text-sm">
-                              🩸 {donor.bloodGroup || "Not specified"}
+                            <span className={`font-semibold text-sm ${isAvailable ? 'text-green-600' : 'text-gray-600'}`}>
+                              {isAvailable ? "🟢 Available" : "🔴 Not Available"}
                             </span>
                           </div>
                         </div>
 
+                        {/* Availability Info */}
+                        <div className={`mb-4 text-center ${isAvailable ? 'text-green-600' : 'text-gray-600'}`}>
+                          <p className="text-sm font-medium">
+                            {availabilityInfo.text}
+                          </p>
+                        </div>
+
                         {/* Location Info */}
-                        <div className="bg-gradient-to-r from-red-50 to-white rounded-xl p-4 mb-6 border border-red-100">
+                        {/* <div className="bg-gradient-to-r from-red-50 to-white rounded-xl p-4 mb-6 border border-red-100">
                           <div className="grid grid-cols-1 gap-3">
                             <div className="flex items-start gap-3">
                               <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -578,7 +608,7 @@ export default function DonorSearch() {
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </div> */}
 
                         {/* Contact Info */}
                         <div className="space-y-4 mb-6">
@@ -627,13 +657,7 @@ export default function DonorSearch() {
                           </div>
                           <div className="text-center">
                             <p className="text-sm text-gray-500">🩸 Last Donation</p>
-                            <p
-                              className={`font-semibold ${
-                                donor.lastDonationDate
-                                  ? "text-green-600"
-                                  : "text-yellow-600"
-                              }`}
-                            >
+                            <p className="font-semibold text-gray-800">
                               {getTimeSinceLastDonation(donor.lastDonationDate)}
                             </p>
                           </div>
@@ -651,8 +675,8 @@ export default function DonorSearch() {
                     Showing {(page - 1) * pageSize + 1} to{" "}
                     {Math.min(page * pageSize, totalDonors)} of {totalDonors}{" "}
                     donors
-                    {filters.donorType === "active" &&
-                      " • Showing active donors only"}
+                    {filters.donorType === "available" && " • Showing available donors only"}
+                    {filters.donorType === "unavailable" && " • Showing unavailable donors only"}
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -754,8 +778,11 @@ export default function DonorSearch() {
         <div className="mt-8 text-center">
           <p className="text-gray-600 text-sm">
             📌 Showing donors from all 64 districts of Bangladesh • 
-            <span className="mx-2">🟢</span> Active donors • 
-            <span className="mx-2">🔴</span> Inactive donors
+            <span className="mx-2">🟢</span> Available donors (Can donate now) • 
+            <span className="mx-2">🔴</span> Unavailable donors (Must wait 90 days between donations)
+          </p>
+          <p className="text-gray-500 text-xs mt-2">
+            Note: Donors can donate blood every 90 days (3 months)
           </p>
         </div>
       </div>

@@ -10,7 +10,7 @@ export const getUserRole = () => {
   if (!token) return null;
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
-    return payload.role; // backend এ role claim থাকতে হবে
+    return payload.role; // backend a role claim thakte hobe
   } catch {
     return null;
   }
