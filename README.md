@@ -1,149 +1,37 @@
-Blood Bank Management System
+🩸 Blood Bank Management System
 
-A full-stack Blood Bank Management System built to efficiently connect blood donors with recipients. The system provides separate dashboards for Donors and Administrators, ensuring secure, role-based access and smooth management of blood donation activities.
+Excited to share my full-stack project — Blood Bank Management System, designed to efficiently connect blood donors with recipients through a secure, role-based platform. The system ensures smooth management of blood donation activities with separate dashboards for Donors and Administrators, backed by strong authentication and authorization.
 
-🚀 Features
+🚀 Key Features
 
-👤 Donor Features
-
-Secure authentication (Login, Register, Forgot Password)
-
+👤 Donor Module
+Secure authentication (Login, Registration, Forgot Password)
 Personalized donor dashboard
-
 Profile management
-
 Blood donation form submission
-
 Donation history tracking
-
-Blood request submission
-
-View personal blood request history
-
+Blood request submission & history view
 Search for available blood donors
+Safety guidelines & awareness section
 
-Safety guidelines and awareness page
-
-
-🛡️ Admin Features
-
+🛡️ Admin Module
 Dedicated admin dashboard
-
-User (donor) management
-
-View and manage all blood requests
-
-View and manage donation history of all donors
-
+Donor and user management
+View & manage all blood requests
+Manage donation history of all donors
 Edit and update donation records
-
-Manage contact and inquiry messages
-
+Handle contact & inquiry messages
 Role-based protected routing for enhanced security
 
+🔐 Authentication & Security
+JWT-based authentication
+Role-based access control (Admin, Donor)
+Protected routes for authenticated users
+Admin-only routes secured using a custom AdminRoute
+Password reset and email communication via SMTP
 
 🧑‍💻 Tech Stack
-Frontend
-
-React.js
-
-React Router DOM
-
-Tailwind CSS
-
-Axios
-
-
-Backend
-
-ASP.NET Core Web API
-
-Entity Framework Core
-
-SQL Server
-
-JWT Authentication
-
-
-🔐 Authentication & Authorization
-
-JWT-based authentication system
-
-Role-based access control (Admin, Donor)
-
-Protected routes for authenticated users
-
-Admin-only routes secured using a custom AdminRoute
-
-
-
-# Getting Started with Create React App
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Frontend: React.js, React Router DOM, Tailwind CSS, Axios
+Backend: ASP.NET Core Web API, Entity Framework Core
+Database: SQL Server
+Security: JWT Authentication
